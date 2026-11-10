@@ -5,7 +5,7 @@ export default function LoginPage() {
   const live = process.env.CCOS_MODE === "live" || process.env.NODE_ENV === "production";
   return (
     <main className="mx-auto max-w-md px-4 py-16">
-      <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--accent)" }}>Cornell Communities</p>
+      <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--forest-mid)" }}>Cornell Communities</p>
       <h1 className="mt-1 text-3xl font-bold">Operating portal</h1>
       <p className="muted mt-2 text-sm">Invitation only. There is no sign-up.</p>
       {live ? (
