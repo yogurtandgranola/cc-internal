@@ -13,5 +13,8 @@ Goal: anyone the admin designates can log in, and each person sees only the dash
 
 Do not use public GitHub Pages for real portfolio data. It has no login.
 
+## Implemented
+Option 1 plus server-side role checks. Cloudflare Access handles login. `functions/_lib.js` maps the verified email to roles (secret `ROLES`) and enforces who can read or write each collection. Setup steps are in `DEPLOY.md`.
+
 ## Rule
 Role checks in the browser only hide menus. Anything confidential must be protected by the backend (option 1 gating plus option 2 row level security).

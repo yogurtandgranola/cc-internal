@@ -1,0 +1,2 @@
+DEV_EMAIL=leo@example.com
+ROLES={"leo@example.com":["admin"]}

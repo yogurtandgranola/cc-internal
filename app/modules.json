@@ -1,1 +1,5 @@
-{"modules":[{"id":"padcount","title":"Padcount","path":"index.html","roles":["admin","ops","deals","ir"]}]}
+{
+  "modules": [
+    { "id": "padcount", "title": "Padcount", "path": "padcount/", "description": "Portfolio health: occupancy, NOI, DSCR, collections, renewals, and business plan vs actual.", "roles": ["ops", "deals", "ir"] }
+  ]
+}
