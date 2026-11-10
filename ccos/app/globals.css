@@ -1,14 +1,35 @@
 @import "tailwindcss";
-:root { --ink:#14181a; --muted:#5b6058; --line:#dcddd5; --page:#f4f5f0; --card:#ffffff; --accent:#1f5d6b; --good:#0b7a3b; --warn:#7a5200; --bad:#b42323; }
-@media (prefers-color-scheme: dark) { :root { --ink:#f1f2ee; --muted:#a8aca3; --line:#2f312d; --page:#0f1110; --card:#181a18; --accent:#6cc0d0; --good:#5fd08a; --warn:#f0c15a; --bad:#ff8b8b; } }
-body { background:var(--page); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+/* Cornell Communities brand v3.1. Forest anchors. Gold is the single action color (forest text on gold, never gold text on cream or white). */
+:root {
+  --forest:#003208; --forest-mid:#004D20; --forest-light:#006B2B; --leaf:#3D8F52;
+  --gold:#C8A456; --gold-light:#E2C07A; --gold-muted:#A88840;
+  --cream:#F4EFE6; --cream-warm:#ECE7DB; --charcoal:#1A1A1A; --stone:#6A6456;
+  --ink:var(--charcoal); --muted:var(--stone); --line:#DDD6C6; --page:var(--cream); --card:#FFFFFF;
+  --accent:var(--forest-mid); --good:#0b6b30; --warn:#7a5200; --bad:#B94040;
+  --nav-bg:var(--forest); --nav-ink:var(--cream);
+}
+@media (prefers-color-scheme: dark) {
+  /* Dark mode is derived from the palette (the guidelines define light only). */
+  :root { --ink:#F4EFE6; --muted:#B9B2A2; --line:#2B3A2F; --page:#0B130D; --card:#12201A; --accent:var(--gold-light); --good:#5fd08a; --warn:#f0c15a; --bad:#ff8b8b; --nav-bg:#001F05; }
+}
+body { background:var(--page); color:var(--ink); font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif; }
+h1 { font-family: var(--font-abril), Georgia, serif; font-weight:400; letter-spacing:.005em; }
+code, .mono { font-family: var(--font-dm-mono), ui-monospace, monospace; }
 a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
-:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
 .card { min-width:0; background:var(--card); border:1px solid var(--line); border-radius:10px; }
 .muted { color:var(--muted); }
 table.t { width:100%; border-collapse:collapse; font-size:13px; }
 table.t th { text-align:left; font-weight:600; color:var(--muted); padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
 table.t td { padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
-.btn { display:inline-block; border:1px solid var(--line); border-radius:8px; padding:6px 12px; font-size:13px; background:var(--card); cursor:pointer; color:var(--ink); }
-.btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+.btn { display:inline-block; border:1px solid var(--line); border-radius:8px; padding:6px 12px; font-size:13px; background:var(--card); cursor:pointer; color:var(--ink); text-decoration:none; }
+.btn:hover { background:var(--cream-warm); color:var(--charcoal); }
+.btn-primary { background:var(--gold); color:var(--forest); border-color:var(--gold); font-weight:600; }
+.btn-primary:hover { background:var(--gold-muted); border-color:var(--gold-muted); color:var(--forest); }
 input, select, textarea { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:13px; color:var(--ink); }
+/* Forest navigation with a gold rule below it, as in the guidelines */
+.nav-side { background:var(--nav-bg); color:var(--nav-ink); border-bottom:3px solid var(--gold); }
+@media (min-width: 768px) { .nav-side { border-bottom:0; border-right:3px solid var(--gold); } }
+.nav-side a { color:var(--nav-ink); text-decoration:none; }
+.nav-side a:hover { background:rgba(255,255,255,.1); }
+.nav-side .brand-eyebrow { color:var(--cream); opacity:.75; }

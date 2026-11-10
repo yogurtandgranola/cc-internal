@@ -17,14 +17,14 @@ export function Shell({ user, children }: { user: SessionUser; children: React.R
   return (
     <div className="min-h-screen md:flex">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-2">Skip to content</a>
-      <aside className="border-b md:min-h-screen md:w-56 md:flex-none md:border-b-0 md:border-r" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
+      <aside className="nav-side md:min-h-screen md:w-56 md:flex-none">
         <div className="px-4 py-4">
-          <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--accent)" }}>Cornell Communities</div>
+          <div className="brand-eyebrow text-xs font-semibold uppercase tracking-widest">Cornell Communities</div>
           <div className="text-lg font-bold">OS</div>
         </div>
         <nav aria-label="Primary" className="flex gap-1 overflow-x-auto px-2 pb-3 md:block md:space-y-1 md:overflow-visible">
           {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="block whitespace-nowrap rounded-md px-3 py-2 text-sm no-underline hover:bg-black/5" style={{ color: "var(--ink)" }}>{n.label}</Link>
+            <Link key={n.href} href={n.href} className="block whitespace-nowrap rounded-md px-3 py-2 text-sm">{n.label}</Link>
           ))}
         </nav>
       </aside>
