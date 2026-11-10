@@ -1,0 +1,1212 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Padcount</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    color-scheme: light;
+    --page:#f2f3ee;
+    --surface:#fcfcfb;
+    --surface-2:#f6f6f2;
+    --surface-hover:#eef0e9;
+    --ink:#14181a;
+    --ink-2:#52564f;
+    --ink-muted:#7c8077;
+    --border:rgba(20,24,26,0.10);
+    --border-strong:rgba(20,24,26,0.16);
+    --accent:#1f5d6b;
+    --accent-ink:#ffffff;
+    --accent-soft:rgba(31,93,107,0.10);
+    --series-1:#2a78d6;
+    --series-2:#eb6834;
+    --vacant:#a9ada2;
+    --good:#0ca30c;
+    --warning:#fab219;
+    --serious:#ec835a;
+    --critical:#d03b3b;
+    --grid:#e1e0d9;
+    --baseline:#c3c2b7;
+    --shadow: 0 1px 2px rgba(20,24,26,0.06), 0 1px 1px rgba(20,24,26,0.04);
+    --modal-backdrop: rgba(20,22,18,0.45);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:#0c0e0d;
+      --surface:#1a1a19;
+      --surface-2:#212220;
+      --surface-hover:#26271f;
+      --ink:#ffffff;
+      --ink-2:#c3c2b7;
+      --ink-muted:#8f9289;
+      --border:rgba(255,255,255,0.10);
+      --border-strong:rgba(255,255,255,0.18);
+      --accent:#5db6c7;
+      --accent-ink:#06232a;
+      --accent-soft:rgba(93,182,199,0.16);
+      --series-1:#3987e5;
+      --series-2:#d95926;
+      --vacant:#5c5f57;
+      --good:#0ca30c;
+      --warning:#fab219;
+      --serious:#ec835a;
+      --critical:#e66767;
+      --grid:#2c2c2a;
+      --baseline:#383835;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4);
+      --modal-backdrop: rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0c0e0d;
+    --surface:#1a1a19;
+    --surface-2:#212220;
+    --surface-hover:#26271f;
+    --ink:#ffffff;
+    --ink-2:#c3c2b7;
+    --ink-muted:#8f9289;
+    --border:rgba(255,255,255,0.10);
+    --border-strong:rgba(255,255,255,0.18);
+    --accent:#5db6c7;
+    --accent-ink:#06232a;
+    --accent-soft:rgba(93,182,199,0.16);
+    --series-1:#3987e5;
+    --series-2:#d95926;
+    --vacant:#5c5f57;
+    --good:#0ca30c;
+    --warning:#fab219;
+    --serious:#ec835a;
+    --critical:#e66767;
+    --grid:#2c2c2a;
+    --baseline:#383835;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4);
+    --modal-backdrop: rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 0 20px;
+  }
+  h1,h2,h3{ font-family:"Archivo", system-ui, sans-serif; text-wrap:balance; margin:0; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+  a{ color:var(--accent); }
+  button{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .app{ max-width:1180px; margin:0 auto; padding-block:28px 56px; }
+
+  /* ---------- header ---------- */
+  .masthead{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+    flex-wrap:wrap;
+    padding-bottom:18px; border-bottom:1px solid var(--border-strong);
+    margin-bottom:22px;
+  }
+  .masthead-title{ display:flex; flex-direction:column; gap:6px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace; font-size:11.5px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--accent); font-weight:500;
+  }
+  .masthead h1{ font-size:26px; font-weight:800; letter-spacing:-.01em; }
+  .masthead .sub{ color:var(--ink-2); font-size:13.5px; margin-top:2px; }
+  .as-of{ display:flex; flex-direction:column; align-items:flex-end; gap:7px; }
+  .live-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500;
+    padding:4px 10px; border-radius:100px; font-family:"IBM Plex Mono",monospace;
+  }
+  .live-badge .dot{ width:6px; height:6px; border-radius:50%; }
+  .live-badge.live{ background:rgba(12,163,12,.12); color:#0a7f0a; }
+  .live-badge.live .dot{ background:var(--good); box-shadow:0 0 0 3px rgba(12,163,12,.18); }
+  .live-badge.connecting{ background:var(--surface-2); color:var(--ink-muted); }
+  .live-badge.connecting .dot{ background:var(--ink-muted); }
+  .live-badge.offline{ background:rgba(208,59,59,.10); color:var(--critical); }
+  .live-badge.offline .dot{ background:var(--critical); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .live-badge.live{ color:#6fdc6f; } }
+  :root[data-theme="dark"] .live-badge.live{ color:#6fdc6f; }
+  .as-of-text{ text-align:right; font-size:12px; color:var(--ink-muted); font-family:"IBM Plex Mono", monospace; }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; border-radius:8px; font-size:13px;
+    font-weight:500; padding:8px 14px; cursor:pointer; border:1px solid var(--border-strong);
+    background:var(--surface); color:var(--ink);
+  }
+  .btn:hover{ background:var(--surface-hover); }
+  .btn-primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+  .btn-primary:hover{ filter:brightness(1.06); }
+  .btn-ghost{ border-color:transparent; background:none; color:var(--accent); padding:8px 6px; }
+  .btn-ghost:hover{ background:var(--accent-soft); }
+  .btn-danger{ border-color:transparent; background:none; color:var(--critical); padding:8px 6px; }
+  .btn-danger:hover{ background:rgba(208,59,59,.08); }
+  .btn-sm{ padding:6px 11px; font-size:12.5px; }
+
+  /* ---------- stat tiles ---------- */
+  .stat-row{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border);
+    border-radius:10px; overflow:hidden; margin-bottom:22px;
+  }
+  .stat-tile{
+    background:var(--surface); padding:16px 16px 14px; display:flex; flex-direction:column; gap:8px;
+    min-width:0;
+  }
+  .stat-label{ font-size:11.5px; color:var(--ink-muted); letter-spacing:.03em; }
+  .stat-value{ font-size:24px; font-weight:600; letter-spacing:-.01em; line-height:1; }
+  .stat-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:22px; }
+  .stat-delta{ font-size:12px; font-weight:500; font-family:"IBM Plex Mono",monospace; }
+  .stat-delta.up{ color:var(--good); } .stat-delta.down{ color:var(--critical); } .stat-delta.flat{ color:var(--ink-muted); }
+  .stat-flags{ display:flex; gap:4px; }
+  .flag-dot{ width:8px; height:8px; border-radius:50%; }
+  .spark{ display:block; }
+
+  /* ---------- status pill ---------- */
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; padding:3px 9px 3px 7px;
+    border-radius:100px; font-size:12px; font-weight:500; white-space:nowrap;
+    border:1px solid transparent;
+  }
+  .pill .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .pill.healthy{ background:rgba(12,163,12,.12); color:#0a7f0a; }
+  .pill.healthy .dot{ background:var(--good); }
+  .pill.watch{ background:rgba(250,178,25,.16); color:#9a6600; }
+  .pill.watch .dot{ background:var(--warning); }
+  .pill.critical{ background:rgba(208,59,59,.13); color:var(--critical); }
+  .pill.critical .dot{ background:var(--critical); }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .pill.healthy{ color:#6fdc6f; }
+    :root:not([data-theme="light"]) .pill.watch{ color:#ffd479; }
+  }
+  :root[data-theme="dark"] .pill.healthy{ color:#6fdc6f; }
+  :root[data-theme="dark"] .pill.watch{ color:#ffd479; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-bottom:12px; flex-wrap:wrap;
+  }
+  .toolbar-left{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .seg{ display:flex; border:1px solid var(--border-strong); border-radius:8px; overflow:hidden; }
+  .seg button{
+    background:var(--surface); color:var(--ink-2); border:none; padding:7px 13px;
+    font-size:12.5px; cursor:pointer; border-right:1px solid var(--border-strong);
+  }
+  .seg button:last-child{ border-right:none; }
+  .seg button.active{ background:var(--accent); color:var(--accent-ink); font-weight:500; }
+  .seg button:hover:not(.active){ background:var(--surface-hover); }
+  .search{
+    background:var(--surface); border:1px solid var(--border-strong); border-radius:8px;
+    padding:7px 11px; font-size:12.5px; color:var(--ink); width:200px;
+  }
+  .search::placeholder{ color:var(--ink-muted); }
+
+  /* ---------- roster table ---------- */
+  .roster{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    overflow:hidden; margin-bottom:26px;
+  }
+  .roster-scroll{ overflow-x:auto; }
+  table.roster-table{ width:100%; border-collapse:collapse; min-width:880px; }
+  .roster-table thead th{
+    position:sticky; top:0; background:var(--surface-2); text-align:left;
+    font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-muted);
+    font-weight:500; padding:10px 14px; border-bottom:1px solid var(--border-strong);
+    cursor:pointer; user-select:none; white-space:nowrap;
+  }
+  .roster-table thead th:hover{ color:var(--ink-2); }
+  .roster-table thead th.num, .roster-table td.num{ text-align:right; }
+  .roster-table thead th .arrow{ font-size:9px; margin-left:3px; opacity:.6; }
+  .roster-table tbody tr{ border-bottom:1px solid var(--border); cursor:pointer; }
+  .roster-table tbody tr:last-child{ border-bottom:none; }
+  .roster-table tbody tr:hover{ background:var(--surface-hover); }
+  .roster-table td{ padding:11px 14px; font-size:13px; vertical-align:middle; }
+  .park-name{ font-weight:600; color:var(--ink); }
+  .park-loc{ color:var(--ink-muted); font-size:12px; margin-top:1px; }
+  .roster-table td.num{ font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); }
+
+  .empty-state{
+    padding:44px 20px; text-align:center; color:var(--ink-muted); font-size:13.5px;
+  }
+  .empty-state strong{ display:block; color:var(--ink-2); font-size:15px; margin-bottom:6px; font-family:"Archivo",sans-serif; }
+  .empty-state .btn{ margin-top:14px; }
+
+  /* ---------- detail view ---------- */
+  #detail-view{ display:none; }
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+    color:var(--accent); font-size:13px; font-weight:500; cursor:pointer; padding:0;
+    margin-bottom:16px; font-family:inherit;
+  }
+  .detail-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:20px;
+    flex-wrap:wrap; margin-bottom:20px;
+  }
+  .detail-head h2{ font-size:23px; margin-bottom:4px; }
+  .detail-head .loc{ color:var(--ink-2); font-size:13.5px; }
+  .detail-head .meta{ display:flex; gap:16px; margin-top:10px; flex-wrap:wrap; }
+  .meta-item{ font-size:12px; color:var(--ink-muted); }
+  .meta-item strong{ color:var(--ink-2); font-family:"IBM Plex Mono",monospace; font-weight:500; }
+  .detail-actions{ display:flex; align-items:center; gap:10px; }
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:18px 18px 16px;
+  }
+  .panel h3{ font-size:13.5px; font-weight:600; margin-bottom:4px; }
+  .panel .panel-sub{ font-size:12px; color:var(--ink-muted); margin-bottom:14px; }
+
+  .grid-2{ display:grid; grid-template-columns:1.3fr 1fr; gap:14px; margin-bottom:14px; align-items:stretch; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
+  @media (max-width:760px){ .grid-2, .grid-3{ grid-template-columns:1fr; } }
+
+  .legend{ display:flex; gap:14px; margin-bottom:10px; flex-wrap:wrap; }
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2); }
+  .legend-swatch{ width:10px; height:10px; border-radius:2px; flex:none; }
+  .legend-line{ width:14px; height:2px; border-radius:2px; flex:none; }
+
+  .watchlist{ display:flex; flex-direction:column; gap:10px; }
+  .watch-item{ display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--ink-2); line-height:1.45; }
+  .watch-item .wdot{ width:7px; height:7px; border-radius:50%; margin-top:5px; flex:none; }
+  .empty-note{ color:var(--ink-muted); font-size:13px; font-style:italic; }
+
+  svg text{ font-family:"IBM Plex Mono", monospace; fill:var(--ink-muted); }
+  svg .axis-line{ stroke:var(--baseline); stroke-width:1; }
+  svg .grid-line{ stroke:var(--grid); stroke-width:1; }
+  svg .end-label{ font-family:"IBM Plex Sans", sans-serif; font-weight:600; }
+
+  .footer-note{ margin-top:26px; font-size:11.5px; color:var(--ink-muted); text-align:center; }
+
+  /* ---------- modal / form ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:var(--modal-backdrop); display:none;
+    align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:50;
+  }
+  .modal-backdrop.open{ display:flex; }
+  .modal{
+    background:var(--surface); border-radius:12px; border:1px solid var(--border-strong);
+    width:100%; max-width:620px; padding:22px 24px 20px; box-shadow:0 12px 32px rgba(0,0,0,0.25);
+  }
+  .modal h3{ font-size:17px; margin-bottom:2px; }
+  .modal .modal-sub{ font-size:12.5px; color:var(--ink-muted); margin-bottom:18px; }
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px 14px; margin-bottom:6px; }
+  .field-grid.cols-3{ grid-template-columns:1fr 1fr 1fr; }
+  .field{ display:flex; flex-direction:column; gap:5px; }
+  .field.span-2{ grid-column:span 2; }
+  .field label{ font-size:11.5px; color:var(--ink-muted); letter-spacing:.02em; }
+  .field input, .field textarea{
+    background:var(--surface-2); border:1px solid var(--border-strong); border-radius:7px;
+    padding:8px 10px; font-size:13px; color:var(--ink); font-family:inherit;
+  }
+  .field textarea{ resize:vertical; min-height:64px; line-height:1.4; }
+  .field input:focus, .field textarea:focus{ outline:2px solid var(--accent); outline-offset:0; border-color:transparent; }
+  .field-note{ font-size:11px; color:var(--ink-muted); margin-top:14px; margin-bottom:2px; }
+  .modal-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:18px; gap:10px; flex-wrap:wrap; }
+  .modal-error{ font-size:12.5px; color:var(--critical); margin-top:10px; display:none; }
+  .modal-error.show{ display:block; }
+
+  @media (max-width:900px){
+    .stat-row{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width:520px){
+    .stat-row{ grid-template-columns:1fr; }
+    .masthead{ align-items:flex-start; }
+    .as-of{ align-items:flex-start; }
+    .as-of-text{ text-align:left; }
+    .field-grid, .field-grid.cols-3{ grid-template-columns:1fr; }
+    .field.span-2{ grid-column:span 1; }
+  }
+</style>
+
+<script src="storage.js"></script>
+<div class="app">
+
+  <div class="masthead">
+    <div class="masthead-title">
+      <div class="eyebrow">Padcount &middot; Portfolio Health</div>
+      <h1>Cornell Communities</h1>
+      <div class="sub" id="portfolioSub">Loading portfolio&hellip;</div>
+    </div>
+    <div class="as-of">
+      <span class="live-badge connecting" id="liveBadge"><span class="dot"></span>Connecting&hellip;</span>
+      <span class="as-of-text">Trailing performance &middot; synced across your team</span>
+    </div>
+  </div>
+
+  <!-- ===================== PORTFOLIO VIEW ===================== -->
+  <div id="portfolio-view">
+
+    <div class="stat-row" id="statRow"></div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="seg" id="statusFilter">
+          <button data-filter="all" class="active">All parks</button>
+          <button data-filter="healthy">Healthy</button>
+          <button data-filter="watch">Watch</button>
+          <button data-filter="critical">Critical</button>
+        </div>
+        <input class="search" id="searchBox" type="text" placeholder="Search park or state&hellip;" />
+      </div>
+      <button class="btn btn-primary" id="addParkBtn">+ Add park</button>
+    </div>
+
+    <div class="roster">
+      <div class="roster-scroll">
+        <table class="roster-table">
+          <thead>
+            <tr>
+              <th data-sort="name">Community</th>
+              <th data-sort="status">Status</th>
+              <th data-sort="occTrend" class="num">Occupancy trend</th>
+              <th data-sort="occ" class="num">Occ.</th>
+              <th data-sort="noi" class="num">NOI (ann.)</th>
+              <th data-sort="cap" class="num">Cap rate</th>
+              <th data-sort="dscr" class="num">DSCR</th>
+              <th data-sort="collection" class="num">Collections</th>
+              <th data-sort="ar" class="num">AR outstanding</th>
+            </tr>
+          </thead>
+          <tbody id="rosterBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <strong>No parks yet</strong>
+        Add your first community to start tracking portfolio health.
+        <div><button class="btn btn-primary" id="emptyAddBtn">+ Add park</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== DETAIL VIEW ===================== -->
+  <div id="detail-view">
+    <button class="back-link" id="backBtn">&larr; Back to portfolio</button>
+
+    <div class="detail-head">
+      <div>
+        <h2 id="dName"></h2>
+        <div class="loc" id="dLoc"></div>
+        <div class="meta">
+          <div class="meta-item">Pads <strong id="dPads"></strong></div>
+          <div class="meta-item">Acquired <strong id="dAcq"></strong></div>
+          <div class="meta-item">Expense ratio <strong id="dExp"></strong></div>
+          <div class="meta-item">Debt <strong id="dDebt"></strong></div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <div id="dStatusPill"></div>
+        <button class="btn btn-sm" id="editParkBtn">Edit</button>
+      </div>
+    </div>
+
+    <div class="grid-3" id="dStatTiles"></div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Occupancy &amp; collections</h3>
+        <div class="panel-sub">Percent of pads occupied vs. percent of billed rent collected, tracked monthly as your team updates it</div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-line" style="background:var(--series-1)"></span>Occupancy</div>
+          <div class="legend-item"><span class="legend-line" style="background:var(--series-2)"></span>Collection rate</div>
+        </div>
+        <div id="dTrendChart"></div>
+      </div>
+      <div class="panel">
+        <h3>Lot mix</h3>
+        <div class="panel-sub" id="dMixSub"></div>
+        <div id="dMixChart"></div>
+        <div class="legend" style="margin-top:12px;margin-bottom:0;">
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--series-1)"></span>Tenant-owned</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--series-2)"></span>Park-owned</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--vacant)"></span>Vacant</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Accounts receivable aging</h3>
+        <div class="panel-sub">Delinquent rent by days outstanding &mdash; estimated from status</div>
+        <div id="dArChart"></div>
+      </div>
+      <div class="panel">
+        <h3>Watch items</h3>
+        <div class="panel-sub">Notes from the asset management team</div>
+        <div class="watchlist" id="dWatchlist"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note" id="footerNote">Cornell Communities Padcount dashboard</div>
+</div>
+
+<!-- ===================== ADD / EDIT MODAL ===================== -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3 id="modalTitle">Add park</h3>
+    <div class="modal-sub" id="modalSub">Enter this month's numbers &mdash; saved changes sync to everyone with access.</div>
+
+    <div class="field-grid">
+      <div class="field span-2"><label for="fName">Community name</label><input id="fName" type="text" placeholder="e.g. Willow Bend MHC" /></div>
+      <div class="field"><label for="fCity">City</label><input id="fCity" type="text" placeholder="e.g. Ocala" /></div>
+      <div class="field"><label for="fState">State</label><input id="fState" type="text" maxlength="2" placeholder="e.g. FL" /></div>
+    </div>
+
+    <div class="field-grid cols-3">
+      <div class="field"><label for="fPads">Pads</label><input id="fPads" type="number" min="0" step="1" /></div>
+      <div class="field"><label for="fAcquired">Acquired (year)</label><input id="fAcquired" type="text" placeholder="e.g. 2022" /></div>
+      <div class="field"><label for="fPoh">Park-owned homes (%)</label><input id="fPoh" type="number" min="0" max="100" step="1" /></div>
+    </div>
+
+    <div class="field-note">This month's performance</div>
+    <div class="field-grid cols-3">
+      <div class="field"><label for="fOcc">Occupancy (%)</label><input id="fOcc" type="number" min="0" max="100" step="0.1" /></div>
+      <div class="field"><label for="fCollection">Collection rate (%)</label><input id="fCollection" type="number" min="0" max="100" step="0.1" /></div>
+      <div class="field"><label for="fAr">AR outstanding ($)</label><input id="fAr" type="number" min="0" step="1" /></div>
+    </div>
+
+    <div class="field-note">Financial &amp; loan</div>
+    <div class="field-grid cols-3">
+      <div class="field"><label for="fNoi">NOI, annualized ($)</label><input id="fNoi" type="number" min="0" step="1" /></div>
+      <div class="field"><label for="fCap">Cap rate (%)</label><input id="fCap" type="number" min="0" step="0.1" /></div>
+      <div class="field"><label for="fDscr">DSCR (x)</label><input id="fDscr" type="number" min="0" step="0.01" /></div>
+    </div>
+    <div class="field-grid">
+      <div class="field"><label for="fExp">Expense ratio (%)</label><input id="fExp" type="number" min="0" max="100" step="0.1" /></div>
+      <div class="field"><label for="fDebt">Debt</label><input id="fDebt" type="text" placeholder="e.g. $5.6M @ 5.4%" /></div>
+    </div>
+
+    <div class="field-grid">
+      <div class="field span-2"><label for="fNotes">Watch items (one per line)</label><textarea id="fNotes" placeholder="Notes for the asset management team&#10;One item per line"></textarea></div>
+    </div>
+
+    <div class="modal-error" id="modalError"></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" id="deleteParkBtn" style="display:none;">Remove park</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button class="btn" id="cancelModalBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveParkBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ---------------------------------------------------------------
+  // TIME HELPERS
+  // ---------------------------------------------------------------
+  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function currentYm(){
+    const d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+  }
+  function ymLabel(ym){
+    const parts = ym.split("-");
+    return MONTH_NAMES[parseInt(parts[1],10)-1]+" "+parts[0].slice(2);
+  }
+
+  // ---------------------------------------------------------------
+  // STATUS + AR SPLIT
+  // ---------------------------------------------------------------
+  function latestPoint(history){
+    if(!history || history.length===0) return null;
+    return history[history.length-1];
+  }
+  function statusFor(p){
+    const pt = latestPoint(p.history);
+    const occ = pt ? pt.occ : 0;
+    const collection = pt ? pt.collection : 0;
+    if(p.dscr < 1.30 || collection < 92) return "critical";
+    if(occ < 89 || collection < 96) return "watch";
+    return "healthy";
+  }
+  const AR_SPLIT = { healthy:[0.70,0.25,0.05], watch:[0.45,0.35,0.20], critical:[0.20,0.30,0.50] };
+  const STATUS_META = {
+    healthy:{ label:"Healthy" }, watch:{ label:"Watch" }, critical:{ label:"Critical" },
+  };
+  function pill(status){
+    const m = STATUS_META[status];
+    return `<span class="pill ${status}"><span class="dot"></span>${m.label}</span>`;
+  }
+
+  // ---------------------------------------------------------------
+  // FORMATTERS
+  // ---------------------------------------------------------------
+  function fmtMoney(n){
+    n = n||0;
+    if(Math.abs(n) >= 1000000) return "$"+(n/1000000).toFixed(2)+"M";
+    if(Math.abs(n) >= 1000) return "$"+Math.round(n/1000)+"K";
+    return "$"+Math.round(n);
+  }
+  function fmtMoneyPrecise(n){ return "$"+Math.round(n||0).toLocaleString("en-US"); }
+  function fmtPct(n,d){ n=n||0; return n.toFixed(d===undefined?1:d)+"%"; }
+
+  // ---------------------------------------------------------------
+  // SVG CHART HELPERS
+  // ---------------------------------------------------------------
+  const NS = "http://www.w3.org/2000/svg";
+  function svg(tag,attrs){
+    const el = document.createElementNS(NS,tag);
+    for(const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function relLum(hex){
+    const n = hex.replace("#","");
+    const r=parseInt(n.substr(0,2),16)/255, g=parseInt(n.substr(2,2),16)/255, b=parseInt(n.substr(4,2),16)/255;
+    const lin = c => c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+    return 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(b);
+  }
+  function inkOn(hex){
+    const L = relLum(hex);
+    const contrastWhite = 1.05/(L+0.05);
+    const contrastBlack = (L+0.05)/0.05;
+    return contrastWhite >= contrastBlack ? "#ffffff" : "#14181a";
+  }
+  function resolvedVar(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function niceBand(values){
+    const min = Math.min(...values), max = Math.max(...values);
+    let lo = Math.floor(min/5)*5 - 5, hi = Math.ceil(max/5)*5 + 5;
+    lo = Math.max(0, lo); hi = Math.min(100, hi);
+    if(hi-lo < 10){ lo = Math.max(0, lo-5); hi = Math.min(100, hi+5); }
+    return {lo,hi};
+  }
+
+  // multi-series line chart over history points (handles 1..N points)
+  function trendChart(history){
+    const w=520,h=190, padL=34,padR=14,padT=14,padB=22;
+    const plotW=w-padL-padR, plotH=h-padT-padB;
+    const root = svg("svg",{viewBox:`0 0 ${w} ${h}`, width:"100%", height:h, role:"img",
+      "aria-label":"Occupancy and collection rate over time"});
+
+    if(!history || history.length===0){
+      const t = svg("text",{x:w/2,y:h/2,"text-anchor":"middle","font-size":"11"});
+      t.textContent = "No monthly data yet"; root.appendChild(t);
+      return root;
+    }
+
+    const occSeries = history.map(hpt=>hpt.occ);
+    const collSeries = history.map(hpt=>hpt.collection);
+    const {lo,hi} = niceBand(occSeries.concat(collSeries));
+    const n = history.length;
+    const x = i => n===1 ? padL+plotW/2 : padL + (i/(n-1))*plotW;
+    const y = v => padT + (1-((v-lo)/(hi-lo)))*plotH;
+
+    [lo, (lo+hi)/2, hi].forEach(v=>{
+      root.appendChild(svg("line",{class:"grid-line", x1:padL, x2:w-padR, y1:y(v), y2:y(v)}));
+      const t = svg("text",{x:padL-6, y:y(v)+3, "text-anchor":"end", "font-size":"9.5"});
+      t.textContent = Math.round(v)+"%"; root.appendChild(t);
+    });
+    root.appendChild(svg("line",{class:"axis-line", x1:padL, x2:w-padR, y1:padT+plotH, y2:padT+plotH}));
+
+    const step = n>8 ? 2 : 1;
+    history.forEach((hpt,i)=>{
+      if(i%step!==0 && i!==n-1) return;
+      const t = svg("text",{x:x(i), y:h-6, "text-anchor":"middle", "font-size":"9"});
+      t.textContent = ymLabel(hpt.ym); root.appendChild(t);
+    });
+
+    function drawSeries(series, color){
+      if(n===1){
+        root.appendChild(svg("circle",{cx:x(0), cy:y(series[0]), r:5, fill:color, stroke:"var(--surface)", "stroke-width":"2"}));
+        const lbl = svg("text",{x:x(0)+10, y:y(series[0])+4, class:"end-label", "font-size":"11", fill:color});
+        lbl.textContent = series[0].toFixed(1)+"%"; root.appendChild(lbl);
+        return;
+      }
+      const pts = series.map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+      const areaPts = `${x(0)},${y(lo)} ${pts} ${x(n-1)},${y(lo)}`;
+      root.appendChild(svg("polygon",{points:areaPts, fill:color, opacity:"0.10", stroke:"none"}));
+      root.appendChild(svg("polyline",{points:pts, fill:"none", stroke:color, "stroke-width":"2",
+        "stroke-linejoin":"round","stroke-linecap":"round"}));
+      const lastX=x(n-1), lastY=y(series[n-1]);
+      root.appendChild(svg("circle",{cx:lastX, cy:lastY, r:5, fill:color, stroke:"var(--surface)", "stroke-width":"2"}));
+      const lbl = svg("text",{x:lastX-2, y:lastY-9, "text-anchor":"end", class:"end-label", "font-size":"11", fill:color});
+      lbl.textContent = series[n-1].toFixed(1)+"%";
+      root.appendChild(lbl);
+    }
+    drawSeries(occSeries, "var(--series-1)");
+    drawSeries(collSeries, "var(--series-2)");
+    return root;
+  }
+
+  // single stacked bar: lot mix
+  function mixChart(toh, poh, vacant, pads){
+    const w=520,h=90, padL=10,padR=10,padT=30;
+    const barY=padT, barH=30;
+    const plotW=w-padL-padR;
+    const root = svg("svg",{viewBox:`0 0 ${w} ${h}`, width:"100%", height:h, role:"img",
+      "aria-label":"Lot mix: tenant-owned, park-owned, and vacant pads"});
+    const total = Math.max(toh+poh+vacant, 1);
+    const gap = 2;
+    let cx = padL;
+    const segs = [
+      {v:toh, color:"var(--series-1)", hex:resolvedVar("--series-1")},
+      {v:poh, color:"var(--series-2)", hex:resolvedVar("--series-2")},
+      {v:vacant, color:"var(--vacant)", hex:resolvedVar("--vacant")},
+    ];
+    segs.forEach((seg,i)=>{
+      const segW = (seg.v/total)*plotW - (i<segs.length-1? gap:0);
+      root.appendChild(svg("rect",{x:cx, y:barY, width:Math.max(segW,0), height:barH, rx:4, fill:seg.color}));
+      if(segW > 30){
+        const t = svg("text",{x:cx+segW/2, y:barY+barH/2+4, "text-anchor":"middle", "font-size":"11",
+          fill:inkOn(seg.hex), class:"end-label"});
+        t.textContent = seg.v;
+        root.appendChild(t);
+      } else if(segW > 0) {
+        const t = svg("text",{x:cx+segW/2, y:barY-8, "text-anchor":"middle", "font-size":"10", fill:"var(--ink-2)", class:"end-label"});
+        t.textContent = seg.v;
+        root.appendChild(t);
+      }
+      cx += segW + gap;
+    });
+    const tot = svg("text",{x:padL, y:padT-12, "font-size":"10.5"});
+    tot.textContent = `${pads} pads total`;
+    root.appendChild(tot);
+    return root;
+  }
+
+  // AR aging horizontal bars, severity-coded
+  function arChart(buckets){
+    const w=520, rowH=34, padT=8, padL=70, padR=56;
+    const h = padT*2 + buckets.length*rowH;
+    const plotW = w-padL-padR;
+    const max = Math.max(...buckets.map(b=>b.amount), 1);
+    const root = svg("svg",{viewBox:`0 0 ${w} ${h}`, width:"100%", height:h, role:"img",
+      "aria-label":"Delinquent accounts receivable by aging bucket"});
+    buckets.forEach((b,i)=>{
+      const y = padT + i*rowH;
+      const bw = Math.max((b.amount/max)*plotW, 2);
+      const label = svg("text",{x:padL-10, y:y+rowH/2+4, "text-anchor":"end", "font-size":"11"});
+      label.textContent = b.label; root.appendChild(label);
+      root.appendChild(svg("rect",{x:padL, y:y+6, width:bw, height:rowH-16, rx:4, fill:b.color}));
+      const val = svg("text",{x:padL+bw+8, y:y+rowH/2+4, "font-size":"11.5", class:"end-label", fill:"var(--ink-2)"});
+      val.textContent = fmtMoney(b.amount);
+      root.appendChild(val);
+    });
+    return root;
+  }
+
+  // table sparkline
+  function sparkline(series, color){
+    const w=88,h=26,pad=3;
+    if(!series || series.length===0){
+      const root = svg("svg",{class:"spark", viewBox:`0 0 ${w} ${h}`, width:w, height:h});
+      return root;
+    }
+    const lo=Math.min(...series), hi=Math.max(...series);
+    const n = series.length;
+    const x = i => n===1 ? w/2 : pad + (i/(n-1))*(w-pad*2);
+    const y = v => pad + (1-((v-lo)/((hi-lo)||1)))*(h-pad*2);
+    const root = svg("svg",{class:"spark", viewBox:`0 0 ${w} ${h}`, width:w, height:h});
+    if(n>1){
+      const pts = series.map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+      root.appendChild(svg("polyline",{points:pts, fill:"none", stroke:"var(--ink-muted)", "stroke-width":"1.5",
+        "stroke-linejoin":"round","stroke-linecap":"round"}));
+    }
+    const lastX=x(n-1), lastY=y(series[n-1]);
+    root.appendChild(svg("circle",{cx:lastX,cy:lastY,r:3,fill:color}));
+    return root;
+  }
+
+  // ---------------------------------------------------------------
+  // STATE
+  // ---------------------------------------------------------------
+  let PARKS = [];
+  let dataLoaded = false;
+  let dbApi = null;
+  let currentFilter = "all";
+  let currentSearch = "";
+  let sortKey = "status";
+  let sortDir = -1;
+  let currentDetailId = null;
+  let editingId = null; // set when the modal is editing an existing park
+
+  function withDerived(p){
+    p.history = p.history || [];
+    p.notes = p.notes || [];
+    const pt = latestPoint(p.history);
+    p.occ = pt ? pt.occ : 0;
+    p.collection = pt ? pt.collection : 0;
+    p.status = statusFor(p);
+    return p;
+  }
+
+  // ---------------------------------------------------------------
+  // PORTFOLIO SUMMARY
+  // ---------------------------------------------------------------
+  function priorBlended(field, weightField){
+    // blended value one snapshot back, using each park's second-to-last history point
+    let num=0, den=0;
+    PARKS.forEach(p=>{
+      if(p.history.length>=2){
+        const prev = p.history[p.history.length-2];
+        const w = weightField ? p[weightField] : 1;
+        num += prev[field]*w; den += w;
+      }
+    });
+    return den>0 ? num/den : null;
+  }
+
+  function renderSummary(){
+    document.getElementById("portfolioSub").textContent =
+      PARKS.length===0 ? "No communities yet" :
+      `${PARKS.length} manufactured-housing ${PARKS.length===1?"community":"communities"} · ${PARKS.reduce((s,p)=>s+(p.pads||0),0).toLocaleString()} pads`;
+
+    if(PARKS.length===0){
+      document.getElementById("statRow").innerHTML = "";
+      return;
+    }
+
+    const totalPads = PARKS.reduce((s,p)=>s+(p.pads||0),0) || 1;
+    const totalNoi = PARKS.reduce((s,p)=>s+(p.noi||0),0);
+    const blendedOcc = PARKS.reduce((s,p)=>s+p.occ*(p.pads||0),0)/totalPads;
+    const avgCap = PARKS.reduce((s,p)=>s+(p.cap||0),0)/PARKS.length;
+    const avgCollection = PARKS.reduce((s,p)=>s+p.collection,0)/PARKS.length;
+    const flagged = PARKS.filter(p=>p.status!=="healthy");
+
+    const priorOcc = priorBlended("occ","pads");
+    const priorColl = priorBlended("collection");
+
+    function delta(cur, prior){
+      if(prior===null) return {text:"no prior month yet", dir:"flat"};
+      const d = cur-prior;
+      const dir = Math.abs(d)<0.05 ? "flat" : (d>0 ? "up" : "down");
+      return { text:(d>=0?"+":"")+d.toFixed(1)+" pts vs last month", dir };
+    }
+    const occDelta = delta(blendedOcc, priorOcc);
+    const collDelta = delta(avgCollection, priorColl);
+
+    const tiles = [
+      { label:"Portfolio NOI (ann.)", value:fmtMoney(totalNoi) },
+      { label:"Blended occupancy", value:fmtPct(blendedOcc), delta:occDelta.text, dir:occDelta.dir },
+      { label:"Blended cap rate", value:fmtPct(avgCap) },
+      { label:"Collection rate", value:fmtPct(avgCollection), delta:collDelta.text, dir:collDelta.dir },
+      { label:"Parks flagged", value:flagged.length+" of "+PARKS.length, custom:true },
+    ];
+
+    const row = document.getElementById("statRow");
+    row.innerHTML = "";
+    tiles.forEach(t=>{
+      const tile = document.createElement("div");
+      tile.className = "stat-tile";
+      if(t.custom){
+        const counts = {healthy:0,watch:0,critical:0};
+        PARKS.forEach(p=>counts[p.status]++);
+        tile.innerHTML = `
+          <div class="stat-label">${t.label}</div>
+          <div class="stat-value tabular">${t.value}</div>
+          <div class="stat-foot">
+            <div class="stat-flags">
+              <span class="flag-dot" style="background:var(--good)" title="${counts.healthy} healthy"></span>
+              <span class="flag-dot" style="background:var(--warning)" title="${counts.watch} watch"></span>
+              <span class="flag-dot" style="background:var(--critical)" title="${counts.critical} critical"></span>
+            </div>
+            <span style="font-size:11px;color:var(--ink-muted)">${counts.watch} watch &middot; ${counts.critical} critical</span>
+          </div>`;
+      } else {
+        tile.innerHTML = `
+          <div class="stat-label">${t.label}</div>
+          <div class="stat-value tabular">${t.value}</div>
+          <div class="stat-foot">
+            ${t.delta ? `<span class="stat-delta ${t.dir}">${t.delta}</span>` : ""}
+          </div>`;
+      }
+      row.appendChild(tile);
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // ROSTER TABLE
+  // ---------------------------------------------------------------
+  function sortValue(p, key){
+    switch(key){
+      case "name": return p.name||"";
+      case "status": return {healthy:0,watch:1,critical:2}[p.status];
+      case "occTrend": return p.history.length ? p.occ - p.history[0].occ : 0;
+      case "occ": return p.occ;
+      case "noi": return p.noi||0;
+      case "cap": return p.cap||0;
+      case "dscr": return p.dscr||0;
+      case "collection": return p.collection;
+      case "ar": return p.ar||0;
+      default: return 0;
+    }
+  }
+
+  function renderRoster(){
+    const body = document.getElementById("rosterBody");
+    const emptyState = document.getElementById("emptyState");
+
+    if(!dataLoaded){
+      body.innerHTML = `<tr><td colspan="9" style="padding:28px 14px; color:var(--ink-muted); font-size:13px;">Loading portfolio&hellip;</td></tr>`;
+      emptyState.style.display = "none";
+      return;
+    }
+    if(PARKS.length===0){
+      body.innerHTML = "";
+      emptyState.style.display = "block";
+      return;
+    }
+    emptyState.style.display = "none";
+
+    let rows = PARKS.filter(p=>{
+      if(currentFilter!=="all" && p.status!==currentFilter) return false;
+      if(currentSearch){
+        const q = currentSearch.toLowerCase();
+        if(!(p.name||"").toLowerCase().includes(q) && !(p.state||"").toLowerCase().includes(q) && !(p.city||"").toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+    rows.sort((a,b)=>{
+      const av=sortValue(a,sortKey), bv=sortValue(b,sortKey);
+      if(typeof av === "string") return av.localeCompare(bv)*sortDir*-1;
+      return (av-bv)*sortDir;
+    });
+
+    body.innerHTML = "";
+    if(rows.length===0){
+      body.innerHTML = `<tr><td colspan="9" style="padding:28px 14px; color:var(--ink-muted); font-size:13px;">No parks match this filter.</td></tr>`;
+      return;
+    }
+    rows.forEach(p=>{
+      const tr = document.createElement("tr");
+      // Community name/location come from collaborative (untrusted) input —
+      // set as text nodes, never interpolated into innerHTML.
+      const nameCell = document.createElement("td");
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "park-name";
+      nameDiv.textContent = p.name || "Untitled community";
+      const locDiv = document.createElement("div");
+      locDiv.className = "park-loc";
+      locDiv.textContent = `${p.city||"?"}, ${p.state||"?"} · ${p.pads||0} pads`;
+      nameCell.appendChild(nameDiv); nameCell.appendChild(locDiv);
+      tr.appendChild(nameCell);
+
+      const rest = document.createElement("template");
+      rest.innerHTML = `
+        <td>${pill(p.status)}</td>
+        <td class="num"></td>
+        <td class="num tabular">${fmtPct(p.occ,0)}</td>
+        <td class="num tabular">${fmtMoney(p.noi)}</td>
+        <td class="num tabular">${fmtPct(p.cap)}</td>
+        <td class="num tabular">${(p.dscr||0).toFixed(2)}x</td>
+        <td class="num tabular">${fmtPct(p.collection)}</td>
+        <td class="num tabular">${fmtMoney(p.ar)}</td>
+      `;
+      tr.appendChild(rest.content);
+
+      const sparkColor = p.status==="critical"?"var(--critical)":p.status==="watch"?"var(--warning)":"var(--good)";
+      tr.querySelector('td:nth-child(3)').appendChild(sparkline(p.history.map(h=>h.occ), sparkColor));
+      tr.addEventListener("click", ()=>showDetail(p.id));
+      body.appendChild(tr);
+    });
+  }
+
+  document.getElementById("statusFilter").addEventListener("click", e=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll("#statusFilter button").forEach(b=>b.classList.toggle("active", b===btn));
+    renderRoster();
+  });
+  document.getElementById("searchBox").addEventListener("input", e=>{
+    currentSearch = e.target.value;
+    renderRoster();
+  });
+  document.querySelectorAll("th[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      const key = th.dataset.sort;
+      if(sortKey===key){ sortDir *= -1; } else { sortKey=key; sortDir=-1; }
+      document.querySelectorAll("th[data-sort] .arrow").forEach(a=>a.remove());
+      const arrow = document.createElement("span");
+      arrow.className="arrow";
+      arrow.textContent = sortDir===1 ? "▲" : "▼";
+      th.appendChild(arrow);
+      renderRoster();
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // DETAIL VIEW
+  // ---------------------------------------------------------------
+  function showDetail(id){
+    currentDetailId = id;
+    const p = PARKS.find(pk=>pk.id===id);
+    if(!p) return;
+    document.getElementById("portfolio-view").style.display = "none";
+    document.getElementById("detail-view").style.display = "block";
+    window.scrollTo({top:0, behavior:"instant"});
+    renderDetail(p);
+  }
+
+  function renderDetail(p){
+    document.getElementById("dName").textContent = p.name||"Untitled community";
+    document.getElementById("dLoc").textContent = `${p.city||"?"}, ${p.state||"?"}`;
+    document.getElementById("dPads").textContent = p.pads||0;
+    document.getElementById("dAcq").textContent = p.acquired||"—";
+    document.getElementById("dExp").textContent = fmtPct(p.expRatio,0);
+    document.getElementById("dDebt").textContent = p.debt||"—";
+    document.getElementById("dStatusPill").innerHTML = pill(p.status);
+
+    const prev = p.history.length>=2 ? p.history[p.history.length-2] : null;
+    const occDelta = prev ? (p.occ - prev.occ) : null;
+    const collDelta = prev ? (p.collection - prev.collection) : null;
+    const tiles = [
+      { label:"NOI (ann.)", value:fmtMoney(p.noi) },
+      { label:"Cap rate", value:fmtPct(p.cap) },
+      { label:"DSCR", value:(p.dscr||0).toFixed(2)+"x" },
+      { label:"Occupancy", value:fmtPct(p.occ,0), delta:occDelta===null?null:(occDelta>=0?"+":"")+occDelta.toFixed(1)+" pts vs last month", dir:occDelta===null?"flat":(occDelta>=0?"up":"down") },
+      { label:"Collection rate", value:fmtPct(p.collection), delta:collDelta===null?null:(collDelta>=0?"+":"")+collDelta.toFixed(1)+" pts vs last month", dir:collDelta===null?"flat":(collDelta>=0?"up":"down") },
+      { label:"AR outstanding", value:fmtMoneyPrecise(p.ar) },
+    ];
+    const tilesEl = document.getElementById("dStatTiles");
+    tilesEl.innerHTML = "";
+    tiles.forEach(t=>{
+      const el = document.createElement("div");
+      el.className = "panel";
+      el.style.padding = "14px 16px";
+      el.innerHTML = `
+        <div class="stat-label">${t.label}</div>
+        <div class="stat-value tabular" style="margin-top:6px;">${t.value}</div>
+        ${t.delta ? `<div class="stat-delta ${t.dir}" style="margin-top:6px;">${t.delta}</div>` : ""}
+      `;
+      tilesEl.appendChild(el);
+    });
+
+    const trendEl = document.getElementById("dTrendChart");
+    trendEl.innerHTML = "";
+    trendEl.appendChild(trendChart(p.history));
+
+    const occupied = Math.round((p.pads||0) * p.occ/100);
+    const poh = Math.round(occupied * (p.pohPct||0)/100);
+    const toh = occupied - poh;
+    const vacant = (p.pads||0) - occupied;
+    document.getElementById("dMixSub").textContent = `${toh} tenant-owned · ${poh} park-owned · ${vacant} vacant`;
+    const mixEl = document.getElementById("dMixChart");
+    mixEl.innerHTML = "";
+    mixEl.appendChild(mixChart(toh, poh, vacant, p.pads||0));
+
+    const split = AR_SPLIT[p.status];
+    const buckets = [
+      { label:"30 days", amount: Math.round((p.ar||0)*split[0]), color:"var(--warning)" },
+      { label:"60 days", amount: Math.round((p.ar||0)*split[1]), color:"var(--serious)" },
+      { label:"90+ days", amount: Math.round((p.ar||0)*split[2]), color:"var(--critical)" },
+    ];
+    const arEl = document.getElementById("dArChart");
+    arEl.innerHTML = "";
+    arEl.appendChild(arChart(buckets));
+
+    const watchEl = document.getElementById("dWatchlist");
+    watchEl.innerHTML = "";
+    if(p.notes.length===0){
+      watchEl.innerHTML = `<div class="empty-note">No open items — performing within underwritten targets.</div>`;
+    } else {
+      p.notes.forEach(n=>{
+        const item = document.createElement("div");
+        item.className = "watch-item";
+        const dotColor = p.status==="critical" ? "var(--critical)" : p.status==="watch" ? "var(--warning)" : "var(--good)";
+        item.innerHTML = `<span class="wdot" style="background:${dotColor}"></span><span></span>`;
+        item.querySelector("span:last-child").textContent = n;
+        watchEl.appendChild(item);
+      });
+    }
+  }
+
+  document.getElementById("backBtn").addEventListener("click", ()=>{
+    currentDetailId = null;
+    document.getElementById("detail-view").style.display = "none";
+    document.getElementById("portfolio-view").style.display = "block";
+  });
+
+  // ---------------------------------------------------------------
+  // ADD / EDIT MODAL
+  // ---------------------------------------------------------------
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const modalError = document.getElementById("modalError");
+
+  function showError(msg){
+    modalError.textContent = msg;
+    modalError.classList.add("show");
+  }
+  function clearError(){
+    modalError.textContent = "";
+    modalError.classList.remove("show");
+  }
+
+  function openModal(park){
+    editingId = park ? park.id : null;
+    document.getElementById("modalTitle").textContent = park ? "Edit park" : "Add park";
+    document.getElementById("modalSub").textContent = park
+      ? "Update this month's numbers — saved changes sync to everyone with access."
+      : "Enter starting numbers — saved changes sync to everyone with access.";
+    document.getElementById("deleteParkBtn").style.display = park ? "inline-flex" : "none";
+
+    document.getElementById("fName").value = park ? (park.name||"") : "";
+    document.getElementById("fCity").value = park ? (park.city||"") : "";
+    document.getElementById("fState").value = park ? (park.state||"") : "";
+    document.getElementById("fPads").value = park ? (park.pads||"") : "";
+    document.getElementById("fAcquired").value = park ? (park.acquired||"") : "";
+    document.getElementById("fPoh").value = park ? (park.pohPct||0) : 0;
+    document.getElementById("fOcc").value = park ? (park.occ||"") : "";
+    document.getElementById("fCollection").value = park ? (park.collection||"") : "";
+    document.getElementById("fAr").value = park ? (park.ar||0) : 0;
+    document.getElementById("fNoi").value = park ? (park.noi||"") : "";
+    document.getElementById("fCap").value = park ? (park.cap||"") : "";
+    document.getElementById("fDscr").value = park ? (park.dscr||"") : "";
+    document.getElementById("fExp").value = park ? (park.expRatio||"") : "";
+    document.getElementById("fDebt").value = park ? (park.debt||"") : "";
+    document.getElementById("fNotes").value = park ? (park.notes||[]).join("\n") : "";
+
+    clearError();
+    modalBackdrop.classList.add("open");
+    document.getElementById("fName").focus();
+  }
+  function closeModal(){
+    modalBackdrop.classList.remove("open");
+    editingId = null;
+  }
+
+  document.getElementById("addParkBtn").addEventListener("click", ()=>openModal(null));
+  document.getElementById("emptyAddBtn").addEventListener("click", ()=>openModal(null));
+  document.getElementById("editParkBtn").addEventListener("click", ()=>{
+    const p = PARKS.find(pk=>pk.id===currentDetailId);
+    if(p) openModal(p);
+  });
+  document.getElementById("cancelModalBtn").addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", (e)=>{ if(e.target===modalBackdrop) closeModal(); });
+
+  document.getElementById("saveParkBtn").addEventListener("click", async ()=>{
+    if(!dbApi){ showError("Live editing isn't available in this view."); return; }
+    const name = document.getElementById("fName").value.trim();
+    if(!name){ showError("Give the community a name."); return; }
+    const num = (id) => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; };
+
+    const occ = num("fOcc"), collection = num("fCollection");
+    const ym = currentYm();
+
+    let history = editingId ? (PARKS.find(pk=>pk.id===editingId)||{}).history || [] : [];
+    history = history.slice();
+    const idx = history.findIndex(h=>h.ym===ym);
+    const point = {ym, occ, collection};
+    if(idx>=0) history[idx] = point; else history.push(point);
+    history.sort((a,b)=>a.ym.localeCompare(b.ym));
+    if(history.length>24) history = history.slice(history.length-24);
+
+    const data = {
+      name,
+      city: document.getElementById("fCity").value.trim(),
+      state: document.getElementById("fState").value.trim().toUpperCase(),
+      pads: num("fPads"),
+      acquired: document.getElementById("fAcquired").value.trim(),
+      pohPct: num("fPoh"),
+      ar: num("fAr"),
+      noi: num("fNoi"),
+      cap: num("fCap"),
+      dscr: num("fDscr"),
+      expRatio: num("fExp"),
+      debt: document.getElementById("fDebt").value.trim(),
+      notes: document.getElementById("fNotes").value.split("\n").map(s=>s.trim()).filter(Boolean),
+      history,
+    };
+
+    const saveBtn = document.getElementById("saveParkBtn");
+    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    try{
+      if(editingId){
+        await dbApi.collection("parks").doc(editingId).set(data);
+      } else {
+        const ref = await dbApi.collection("parks").add(data);
+        currentDetailId = ref.id;
+      }
+      closeModal();
+    } catch(err){
+      showError((err && err.message) ? err.message : "Couldn't save — please try again.");
+    } finally {
+      saveBtn.disabled = false; saveBtn.textContent = "Save";
+    }
+  });
+
+  document.getElementById("deleteParkBtn").addEventListener("click", async ()=>{
+    if(!dbApi || !editingId) return;
+    const btn = document.getElementById("deleteParkBtn");
+    btn.disabled = true; btn.textContent = "Removing…";
+    try{
+      await dbApi.collection("parks").doc(editingId).delete();
+      closeModal();
+      document.getElementById("backBtn").click();
+    } catch(err){
+      showError((err && err.message) ? err.message : "Couldn't remove — please try again.");
+    } finally {
+      btn.disabled = false; btn.textContent = "Remove park";
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // DB WIRING
+  // ---------------------------------------------------------------
+  function setLive(state, text){
+    const el = document.getElementById("liveBadge");
+    el.className = "live-badge "+state;
+    el.innerHTML = `<span class="dot"></span>${text}`;
+  }
+
+  async function initDb(){
+    // Storage is provider-neutral: see storage.js (Claude artifact db, local, or your own backend).
+    if(!(window.CornellStorage && window.CornellStorage.use)){
+      setLive("offline", "Live editing unavailable here");
+      dataLoaded = true;
+      document.getElementById("addParkBtn").disabled = true;
+      document.getElementById("footerNote").textContent = "Cornell Communities Padcount dashboard — open the published page to view and edit live portfolio data.";
+      renderSummary(); renderRoster();
+      return;
+    }
+    dbApi = await window.CornellStorage.use("db");
+    if(!dbApi){
+      setLive("offline", "Live editing unavailable here");
+      dataLoaded = true;
+      document.getElementById("addParkBtn").disabled = true;
+      renderSummary(); renderRoster();
+      return;
+    }
+    dbApi.collection("parks").onSnapshot(
+      snap=>{
+        PARKS = snap.docs.map(d=>withDerived(Object.assign({id:d.id}, d.data())));
+        dataLoaded = true;
+        setLive("live", "Live — synced to your team");
+        renderSummary();
+        renderRoster();
+        if(currentDetailId && document.getElementById("detail-view").style.display!=="none"){
+          const p = PARKS.find(pk=>pk.id===currentDetailId);
+          if(p) renderDetail(p); else document.getElementById("backBtn").click();
+        }
+      },
+      err=>{
+        setLive("offline", "Connection lost — reload to retry");
+      }
+    );
+  }
+
+  // ---------------------------------------------------------------
+  // INIT
+  // ---------------------------------------------------------------
+  renderRoster();
+  const initialSortTh = document.querySelector(`th[data-sort="${sortKey}"]`);
+  if(initialSortTh){
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.textContent = sortDir===1 ? "▲" : "▼";
+    initialSortTh.appendChild(arrow);
+  }
+  initDb();
+
+})();
+</script>
+
+</body></html>
