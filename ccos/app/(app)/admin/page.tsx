@@ -5,11 +5,14 @@ import { Badge, Crumbs, PageHeader } from "@/components/ui";
 import { PROPERTIES, DEALS } from "@/lib/fixtures";
 import { rentManagerStub } from "@/lib/connectors/rentmanager";
 import { hostedDemoEnabled } from "@/lib/auth";
+import { LiveAdmin } from "./live-admin";
 import { aiConfigAction, deactivateAction, inviteAction, kpiConfigAction, resolveReviewAction, revokeInviteAction, syncAction } from "./actions";
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ invite?: string; for?: string; error?: string }> }) {
   const user = await requirePermission("manage_users");
   const sp = await searchParams;
+  // Real accounts manage people in the database. Demo accounts keep the demo screen below.
+  if (user.live) return <LiveAdmin user={user} error={sp.error} />;
   const s = getStore().state;
   const rm = rentManagerStub();
   const lastSync = [...s.syncRuns].reverse()[0];

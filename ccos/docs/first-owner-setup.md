@@ -18,10 +18,11 @@ Go to the portal, enter that email and password. The first time, the portal make
 
 ## What works today
 - Real sign-in with your own password
+- **People and access**: add people, choose their role and properties, remove access, switch people off, reset passwords. See `docs/access-guide.md`.
 - Your role is read from the database on every click. Remove a person's access and their next click fails.
 - The demo accounts keep working for testers (fictional data)
 
 ## What does not work yet
-- Adding teammates inside the portal (the Admin page still uses demo data). For now add them in Supabase as in step 1, and ask Claude to give them a role.
-- Two-step login (MFA), password reset by email, invitation emails
+- Invitation and reset emails (you share temporary passwords yourself)
+- Two-step login (MFA)
 - Live data. Everything on screen is still fictional until Asana and Rent Manager are connected.

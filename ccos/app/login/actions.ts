@@ -24,6 +24,7 @@ export async function loginAction(_prev: State, form: FormData): Promise<State> 
     if (!res.ok) {
       const msg = res.reason === "throttled" ? "Too many tries. Wait 15 minutes and try again."
         : res.reason === "no_access" ? "Your login works, but you have no access yet. Ask the owner to give you a role."
+        : res.reason === "switched_off" ? "This account has been switched off. Ask the owner to switch it back on."
         : res.reason === "unavailable" ? "Sign-in is not available right now. Try again in a minute."
         : BAD;
       return { error: msg, email };

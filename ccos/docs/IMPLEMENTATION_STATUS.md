@@ -36,6 +36,7 @@ Legend: done and tested, built but untested, blocked, not started, pending appro
 | Universal search | Done, scoped before matching |
 | CSV export | Done, scoped, formula-safe |
 | Real sign-in (Supabase Auth password check, roles from Postgres on every request, owner bootstrap by env email, demo kept) | Built, unit tested with fakes (9 tests), migration runner tested on real Postgres. Not yet exercised against the real Supabase project |
+| People and access for real accounts (add person with temporary password, property-limited roles, give or remove access, switch off, reset password, change own password, audit list) | Built. 11 tests on a real Postgres, 11 browser tests (including accessibility) against the real app with a stand-in for Supabase Auth, 12 unit tests. Not yet exercised against the real Supabase project |
 | MFA | Not started. Planned with Supabase Auth |
 | Hosted demo mode (explicit opt-in, fail closed) | Done, unit tested and checked on a production build |
 | Mobile and tablet layout | Done, overflow test at 390px |

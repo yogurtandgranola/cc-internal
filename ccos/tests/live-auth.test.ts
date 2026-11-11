@@ -5,7 +5,7 @@ import { can } from "@/lib/authz";
 // A tiny fake of Supabase Auth and of our three tables. It answers only the SQL this module sends.
 type Row = Record<string, unknown>;
 function fake(opts: { password?: string; authId?: string; env?: Record<string, string> } = {}) {
-  const state = { profiles: [] as Row[], grants: [] as Row[], orgs: [] as Row[], audit: [] as Row[], now: 1_800_000_000_000 };
+  const state = { profiles: [] as Row[], grants: [] as Row[], orgs: [] as Row[], audit: [] as Row[], properties: [] as Row[], now: 1_800_000_000_000 };
   const exec = async (sql: string, p: unknown[] = []): Promise<Row[]> => {
     if (sql.includes("from public.profiles where id")) return state.profiles.filter((x) => x.id === p[0]);
     if (sql.includes("from public.user_role_grants where user_id")) return state.grants.filter((x) => x.user_id === p[0] && !x.revoked_at);
@@ -14,6 +14,8 @@ function fake(opts: { password?: string; authId?: string; env?: Record<string, s
     if (sql.includes("insert into public.organizations")) { state.orgs.push({ id: "org1" }); return [{ id: "org1" }]; }
     if (sql.includes("insert into public.profiles")) { if (!state.profiles.some((x) => x.id === p[0])) state.profiles.push({ id: p[0], org_id: p[1], email: p[2], name: p[3], active: true }); return []; }
     if (sql.includes("insert into public.user_role_grants")) { state.grants.push({ user_id: p[0], role: "owner_admin", scope_type: "org", scope_id: null }); return []; }
+    if (sql.includes("from public.properties")) return [{ n: state.properties.length }];
+    if (sql.includes("insert into public.properties")) { state.properties.push({ id: p[0] }); return []; }
     if (sql.includes("insert into public.audit_events")) { state.audit.push({ args: p }); return []; }
     throw new Error("unexpected sql: " + sql);
   };
@@ -68,6 +70,12 @@ describe("real sign-in", () => {
     const f = fake({ authId: "stranger" });
     expect(await liveLogin("stranger@x.test", "right-password-123", f.deps)).toEqual({ ok: false, reason: "no_access" });
     expect(f.state.profiles).toEqual([]);
+  });
+
+  it("a switched-off person is told so, not that they have no access yet", async () => {
+    const f = fake({ authId: "off1" });
+    addUser(f.state, "off1", "ops_staff", ["department", "operations"], false);
+    expect(await liveLogin("off1@x.test", "right-password-123", f.deps)).toEqual({ ok: false, reason: "switched_off" });
   });
 
   it("demo addresses never go to Supabase", async () => {

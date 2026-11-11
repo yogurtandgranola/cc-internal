@@ -13,7 +13,8 @@ export function Shell({ user, children }: { user: SessionUser; children: React.R
   if (depts.includes("ir")) nav.push({ href: "/investor-relations", label: "Investor Relations" });
   if (depts.includes("executive")) nav.push({ href: "/executive", label: "Executive" });
   nav.push({ href: "/work", label: "My work" }, { href: "/ai", label: "AI analyst" });
-  if (can(user, "manage_users")) nav.push({ href: "/admin", label: "Admin" });
+  if (can(user, "manage_users")) nav.push({ href: "/admin", label: user.live ? "People and access" : "Admin" });
+  if (user.live) nav.push({ href: "/account", label: "Account" });
   return (
     <div className="min-h-screen md:flex">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-2">Skip to content</a>
