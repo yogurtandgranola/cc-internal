@@ -4,12 +4,12 @@ import { getStore } from "@/lib/store";
 import { login, assertMockAuthAllowed } from "@/lib/auth";
 import { clearSessionCookie, setSessionCookie } from "@/lib/session";
 
-export async function loginAction(_prev: { error?: string } | undefined, form: FormData) {
+export async function loginAction(_prev: { error?: string; email?: string } | undefined, form: FormData) {
   assertMockAuthAllowed();
   const email = String(form.get("email") ?? "");
   const password = String(form.get("password") ?? "");
   const res = login(getStore(), email, password);
-  if (!res) return { error: "Email or password is incorrect, or the account is inactive." };
+  if (!res) return { error: "Email or password is incorrect, or the account is inactive.", email };
   await setSessionCookie(res.token);
   redirect("/");
 }

@@ -32,3 +32,6 @@ Each KPI returns a value, unit, formula, status, and reason. The UI shows `Unava
 
 ## ADR-11: The earlier Cloudflare static dashboard is kept, not reused
 It has no per-record authorization or audit and keeps data in one KV key. It stays on `main` unchanged.
+
+## ADR-12: Hosted demo is an explicit, fail-closed opt-in
+Testers need a web address, but demo sign-in must never sit in front of real data. Mock sign-in in production requires `CCOS_DEMO_HOSTED=true`. It turns itself off when `CCOS_MODE=live` or when any real source or vendor key is configured (Asana, Rent Manager, Supabase, AI providers). The seeded accounts use a shared `CCOS_DEMO_PASSWORD` that is not shown on the page and not stored in git. Without that variable in production, nobody can sign in. Persistence is disabled in production, so hosted-demo changes live in memory only.

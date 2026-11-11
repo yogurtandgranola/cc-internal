@@ -4,6 +4,7 @@ import { ROLES } from "@/lib/authz";
 import { Badge, Crumbs, PageHeader } from "@/components/ui";
 import { PROPERTIES, DEALS } from "@/lib/fixtures";
 import { rentManagerStub } from "@/lib/connectors/rentmanager";
+import { hostedDemoEnabled } from "@/lib/auth";
 import { aiConfigAction, deactivateAction, inviteAction, kpiConfigAction, resolveReviewAction, revokeInviteAction, syncAction } from "./actions";
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ invite?: string; for?: string; error?: string }> }) {
@@ -17,6 +18,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     <>
       <Crumbs items={[{ label: "Home", href: "/" }, { label: "Admin" }]} />
       <PageHeader title="Admin" sub="Invitations, access, integrations, models, KPI definitions, and audit history." />
+      {hostedDemoEnabled() ? <p role="status" className="mb-3 rounded-md px-3 py-2 text-sm" style={{ background: "#fde68a", color: "#422006" }}>Hosted demo: invitations, deactivations, and settings are temporary and can reset at any time. Seeded demo accounts always work.</p> : null}
       {sp.error ? <p role="alert" className="mb-3 text-sm" style={{ color: "var(--bad)" }}>{sp.error}</p> : null}
       {sp.invite ? (
         <div className="card mb-4 p-4 text-sm" role="status" data-testid="invite-link">

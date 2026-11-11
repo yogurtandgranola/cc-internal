@@ -1,8 +1,13 @@
 import { LoginForm } from "./form";
 import { DEMO_PASSWORD, SEED_USERS } from "@/lib/fixtures";
+import { hostedDemoEnabled, mockAuthAllowed } from "@/lib/auth";
+
+// Evaluated per request, so the environment decides, not the build.
+export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
-  const live = process.env.CCOS_MODE === "live" || process.env.NODE_ENV === "production";
+  const live = !mockAuthAllowed();
+  const hosted = hostedDemoEnabled();
   return (
     <main className="mx-auto max-w-md px-4 py-16">
       <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--forest-mid)" }}>Cornell Communities</p>
@@ -19,6 +24,9 @@ export default function LoginPage() {
             DEMO DATA. Synthetic accounts for local testing only.
           </div>
           <LoginForm />
+          {hosted ? (
+            <p className="muted mt-6 text-sm">This is a hosted demo with fictional data. Ask the person who shared this link for the demo account and password. Changes you make may reset.</p>
+          ) : (
           <details className="mt-6 text-sm">
             <summary className="cursor-pointer">Demo accounts (password: {DEMO_PASSWORD})</summary>
             <ul className="muted mt-2 space-y-1">
@@ -27,6 +35,7 @@ export default function LoginPage() {
               ))}
             </ul>
           </details>
+          )}
         </>
       )}
     </main>

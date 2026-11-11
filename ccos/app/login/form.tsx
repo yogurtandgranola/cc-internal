@@ -8,7 +8,7 @@ export function LoginForm() {
     <form action={action} className="card mt-4 space-y-4 p-5">
       <div>
         <label htmlFor="email" className="block text-sm font-medium">Email</label>
-        <input id="email" name="email" type="email" autoComplete="username" required className="mt-1 w-full" />
+        <input id="email" name="email" type="email" autoComplete="username" required defaultValue={state?.email ?? ""} className="mt-1 w-full" />
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium">Password</label>

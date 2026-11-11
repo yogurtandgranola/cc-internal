@@ -26,7 +26,9 @@ export type State = {
 export const uid = () => crypto.randomUUID();
 
 export function seedState(): State {
-  const pw = hashPassword(DEMO_PASSWORD);
+  // Hosted demo uses CCOS_DEMO_PASSWORD. Without it in production nobody can sign in (random password).
+  const demoPw = process.env.CCOS_DEMO_PASSWORD || (process.env.NODE_ENV === "production" ? crypto.randomUUID() : DEMO_PASSWORD);
+  const pw = hashPassword(demoPw);
   const now = new Date().toISOString();
   return {
     users: SEED_USERS.map((u) => ({ id: "u-" + u.email.split("@")[0], email: u.email, name: u.name, active: true, sessionVersion: 1, grants: u.grants, passwordHash: pw, createdAt: now, invitedBy: null })),
@@ -57,7 +59,7 @@ export function createStore(opts: { persist: boolean; file?: string } = { persis
 
 const g = globalThis as unknown as { __ccos_store?: Store };
 export function getStore(): Store {
-  if (!g.__ccos_store) g.__ccos_store = createStore({ persist: process.env.CCOS_PERSIST !== "false" });
+  if (!g.__ccos_store) g.__ccos_store = createStore({ persist: process.env.CCOS_PERSIST !== "false" && process.env.NODE_ENV !== "production" });
   return g.__ccos_store;
 }
 export function resetStoreForTests(persist = false) { g.__ccos_store = createStore({ persist }); return g.__ccos_store; }
