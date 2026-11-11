@@ -12,7 +12,7 @@ Last verified: 2026-11-10, in the build environment. "Verified" means exercised 
 | Google Drive | Source documents | Not connected. Links only | none |
 | Gmail, GHL, Meow | Optional later | Not connected, not started | none |
 | Supabase Auth | Production sign-in | Not wired. Mock auth is dev and test only and is refused in production | `tests/auth.test.ts` |
-| Supabase Postgres | Production data store | Schema and RLS written and tested on a local Postgres 16. The app does not read from it yet | `supabase/migrations`, `tests/db/rls.test.sql` |
+| Supabase Postgres | Production data store | Project installed through Vercel on 2026-11-11 (free plan) and linked to the site for preview and production. It is empty: no migrations applied yet. Schema and RLS are tested on a local Postgres 16. The app does not read from it yet | `supabase/migrations`, `tests/db/rls.test.sql` |
 | AI providers | Optional analyst | Mock provider tested. OpenAI, Anthropic, Google adapters are registered stubs that report unavailable | `lib/ai/provider.ts`, `tests/ai.test.ts` |
 
 ## Repositories reviewed as hints (not touched)

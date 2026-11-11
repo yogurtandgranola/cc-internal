@@ -6,7 +6,9 @@ import { audit, uid, type Store, type StoredUser } from "./store";
 import { hashPassword, verifyPassword } from "./password";
 
 // Any of these means real systems or real vendors are wired in. The hosted demo then refuses to run (fail closed).
-const LIVE_SOURCE_VARS = ["ASANA_ACCESS_TOKEN", "RENTMANAGER_BASE_URL", "RENTMANAGER_API_KEY", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SECRET_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY"];
+// Supabase keys are deliberately NOT in this list while the database holds no real data and the app does not read from it.
+// Add them back the moment any real record is stored in Supabase or real sign-in replaces the demo.
+const LIVE_SOURCE_VARS = ["ASANA_ACCESS_TOKEN", "RENTMANAGER_BASE_URL", "RENTMANAGER_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY"];
 export function liveSourcesConfigured(): boolean {
   return LIVE_SOURCE_VARS.some((k) => Boolean(process.env[k]));
 }

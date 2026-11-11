@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { hostedDemoEnabled, liveSourcesConfigured, mockAuthAllowed } from "@/lib/auth";
 
-const KEYS = ["NODE_ENV", "CCOS_MODE", "CCOS_DEMO_HOSTED", "ASANA_ACCESS_TOKEN", "RENTMANAGER_API_KEY", "NEXT_PUBLIC_SUPABASE_URL", "OPENAI_API_KEY"];
+const KEYS = ["NODE_ENV", "CCOS_MODE", "CCOS_DEMO_HOSTED", "ASANA_ACCESS_TOKEN", "RENTMANAGER_API_KEY", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SECRET_KEY", "POSTGRES_URL", "OPENAI_API_KEY"];
 const saved: Record<string, string | undefined> = Object.fromEntries(KEYS.map((k) => [k, process.env[k]]));
 const env = process.env as Record<string, string | undefined>;
 function set(vars: Record<string, string | undefined>) {
@@ -35,10 +35,19 @@ describe("mock sign-in guard", () => {
     expect(mockAuthAllowed()).toBe(false);
   });
   it("switches itself off when any live source or vendor key is configured", () => {
-    for (const k of ["ASANA_ACCESS_TOKEN", "RENTMANAGER_API_KEY", "NEXT_PUBLIC_SUPABASE_URL", "OPENAI_API_KEY"]) {
+    for (const k of ["ASANA_ACCESS_TOKEN", "RENTMANAGER_API_KEY", "OPENAI_API_KEY"]) {
       set({ NODE_ENV: "production", CCOS_DEMO_HOSTED: "true", [k]: "x" });
       expect(liveSourcesConfigured()).toBe(true);
       expect(mockAuthAllowed(), k).toBe(false);
     }
+  });
+  it("keeps working when only an empty Supabase database is connected", () => {
+    set({ NODE_ENV: "production", CCOS_DEMO_HOSTED: "true", NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", SUPABASE_SECRET_KEY: "x", POSTGRES_URL: "postgres://x" });
+    expect(liveSourcesConfigured()).toBe(false);
+    expect(mockAuthAllowed()).toBe(true);
+  });
+  it("still turns off when a real source is added next to Supabase", () => {
+    set({ NODE_ENV: "production", CCOS_DEMO_HOSTED: "true", NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", RENTMANAGER_API_KEY: "x" });
+    expect(mockAuthAllowed()).toBe(false);
   });
 });
