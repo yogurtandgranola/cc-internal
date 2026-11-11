@@ -22,8 +22,10 @@ export const ROLES = [
   "ops_staff",
   "acquisitions_manager",
   "acquisitions_staff",
+  "acquisitions_coordinator",
   "ir_manager",
   "ir_staff",
+  "ir_coordinator",
   "external_pm",
   "external_contractor",
   "restricted_viewer",
@@ -36,8 +38,12 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   ops_staff: ["view_company_summary", "view_property_financials", "manage_tasks_local"],
   acquisitions_manager: ["view_company_summary", "view_deal_financials", "manage_tasks_local", "request_external_write"],
   acquisitions_staff: ["view_company_summary", "manage_tasks_local"],
+  // Coordinator (a VA can hold it): the deal pipeline, due dates and diligence tasks. No prices, no underwriting numbers.
+  acquisitions_coordinator: ["view_company_summary", "manage_tasks_local"],
   ir_manager: ["view_company_summary", "view_investor_pii", "manage_tasks_local", "request_external_write"],
   ir_staff: ["view_company_summary", "view_investor_pii", "manage_tasks_local"],
+  // Coordinator: sees which IR tasks are due. No investor contact details, no commitments, no investor list.
+  ir_coordinator: ["view_company_summary", "manage_tasks_local"],
   external_pm: ["view_property_financials"],
   external_contractor: ["view_company_summary"],
   restricted_viewer: ["view_company_summary"],
@@ -48,7 +54,9 @@ export const ROLE_HOME: Partial<Record<Role, Department>> = {
   ops_staff: "operations",
   acquisitions_manager: "acquisitions",
   acquisitions_staff: "acquisitions",
+  acquisitions_coordinator: "acquisitions",
   ir_manager: "ir",
   ir_staff: "ir",
+  ir_coordinator: "ir",
 };
 
