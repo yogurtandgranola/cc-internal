@@ -1,7 +1,7 @@
 # Security design
 
 ## Boundaries
-1. **Sign-in.** Production: Supabase Auth, invite only, no open sign-up, optional MFA (not built). Demo: signed cookie from a mock harness that refuses to run in production or live mode.
+1. **Sign-in.** Production target: Supabase Auth, invite only, no open sign-up, optional MFA (not built). Demo: signed cookie from a mock harness. In production it runs only as an explicit hosted demo (`CCOS_DEMO_HOSTED=true`) and refuses when live mode or any live source or vendor key is set.
 2. **Application.** Every read goes through `lib/dal` with the acting user. `can()` checks permission and scope. Out-of-scope ids look like missing ids.
 3. **Database.** RLS on every table, forced, anon has no privileges, user-scoped client for ordinary reads. The service key is reserved for invitations and ingestion.
 4. **AI.** Retrieval is built only from DAL output for the asking user. No raw SQL, no unfiltered search, no write tools.
@@ -31,3 +31,8 @@ Investor identities, commitment amounts, tenant balances, leases, bank data, KYC
 - Dependency audit and a formal third-party security review have not been done.
 - The AI mock provider is rule based. Real vendor behavior against prompt injection is untested.
 - Invitation tokens appear in the admin page URL once. Treat them as secrets and expire unused ones.
+
+## Hosted demo risks
+- Anyone with the web address and the shared demo password can sign in as any seeded demo role. This is acceptable only because every record is synthetic. Do not connect a real source to this deployment.
+- Hosted-demo invitations and deactivations are in server memory. They can reset and may differ across server instances.
+- The shared demo password should be rotated when the testers change.

@@ -35,6 +35,7 @@ Legend: done and tested, built but untested, blocked, not started, pending appro
 | Universal search | Done, scoped before matching |
 | CSV export | Done, scoped, formula-safe |
 | MFA | Not started. Planned with Supabase Auth |
+| Hosted demo mode (explicit opt-in, fail closed) | Done, unit tested and checked on a production build |
 | Mobile and tablet layout | Done, overflow test at 390px |
 | Accessibility | axe scan on 11 pages with no serious or critical issues, skip link, labels, focus |
 | External writes of any kind | Intentionally absent |

@@ -1,3 +1,5 @@
+> **Main app: `ccos/`.** For Cornell Communities OS read `ccos/docs/HANDOFF.md` and `ccos/AGENTS.md`. The rules below describe only the older static dashboard in `app/` and `functions/`, which is not part of CCOS.
+
 # Agent instructions
 
 Applies to any coding agent or human contributor.

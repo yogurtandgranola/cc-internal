@@ -28,7 +28,7 @@ Sign in with any demo account. Password for all of them: `demo-password`.
 
 A yellow DEMO DATA banner is always shown. All names and numbers are fictional.
 
-Mock sign-in exists only for local development and tests. It is refused when `NODE_ENV=production` or `CCOS_MODE=live`, and the login page says live sign-in is not configured.
+Mock sign-in exists for local development, tests, and an explicit **hosted demo**. In production it is refused unless `CCOS_DEMO_HOSTED=true` is set, and it is always refused when `CCOS_MODE=live` or any live source or vendor key is configured. See `docs/HANDOFF.md`.
 
 ## Walkthrough (10 minutes)
 
@@ -72,4 +72,4 @@ npm run check         # typecheck, lint, unit, and database tests
 - Demo mode runs on an in-memory/file store, not Postgres. The Postgres schema and RLS policies are tested, but the app does not read from Supabase yet.
 - Supabase Auth, live Asana, Rent Manager, Notion, Drive, and real LLM providers are not wired. See `docs/connection-status.md`.
 - No email is sent. Invitation links are shown to the admin to deliver.
-- Nothing is deployed. See `docs/go-live-checklist.md`.
+- A synthetic-data hosted demo runs on Vercel for feedback. No real data is deployed. See `docs/HANDOFF.md` and `docs/go-live-checklist.md`.

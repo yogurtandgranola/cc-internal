@@ -1,15 +1,27 @@
-// Mock auth harness (development and test only). Refused in production.
+// Mock auth harness. Runs locally, in tests, and as an explicit hosted demo with synthetic data. Refused in live mode.
 // Live mode would use Supabase Auth with the same SessionUser shape. See docs/DECISIONS.md.
 import crypto from "node:crypto";
 import { HttpError, assertCan, can, type Grant, type SessionUser } from "./authz";
 import { audit, uid, type Store, type StoredUser } from "./store";
 import { hashPassword, verifyPassword } from "./password";
 
+// Any of these means real systems or real vendors are wired in. The hosted demo then refuses to run (fail closed).
+const LIVE_SOURCE_VARS = ["ASANA_ACCESS_TOKEN", "RENTMANAGER_BASE_URL", "RENTMANAGER_API_KEY", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SECRET_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY"];
+export function liveSourcesConfigured(): boolean {
+  return LIVE_SOURCE_VARS.some((k) => Boolean(process.env[k]));
+}
+// Hosted demo: an explicit opt-in for a web deployment that holds synthetic data only.
+export function hostedDemoEnabled(): boolean {
+  return process.env.CCOS_DEMO_HOSTED === "true" && process.env.CCOS_MODE !== "live" && !liveSourcesConfigured();
+}
+// Mock sign-in runs locally and in tests, and in production only as an explicit hosted demo with no live source connected.
 export function mockAuthAllowed(): boolean {
-  return process.env.NODE_ENV !== "production" && process.env.CCOS_MODE !== "live";
+  if (process.env.CCOS_MODE === "live") return false;
+  if (process.env.NODE_ENV !== "production") return true;
+  return hostedDemoEnabled();
 }
 export function assertMockAuthAllowed() {
-  if (!mockAuthAllowed()) throw new Error("Mock authentication is disabled in production and live mode.");
+  if (!mockAuthAllowed()) throw new Error("Mock authentication is disabled here. Hosted demo needs CCOS_DEMO_HOSTED=true and no live source configured.");
 }
 
 function secret(): string {
