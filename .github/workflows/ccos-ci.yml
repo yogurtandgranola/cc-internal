@@ -36,11 +36,11 @@ jobs:
       - run: npm run build
       - name: Playwright
         run: |
-          # The browser install downloads packages with apt, which is sometimes unreachable. Retry, then fail loudly.
-          ok=0
-          for attempt in 1 2 3; do
-            if npx playwright install --with-deps chromium; then ok=1; break; fi
-            echo "browser install attempt $attempt failed, retrying"; sleep $((attempt * 20))
-          done
-          [ "$ok" = 1 ] || { echo "Browser install failed after 3 attempts"; exit 1; }
+          # The runner already has the browser's system libraries. Only a few extra fonts come from apt, and apt is sometimes unreachable.
+          # Try the full install with short apt timeouts. If apt is down, install the browser alone.
+          printf 'Acquire::Retries "0";\nAcquire::http::Timeout "10";\nAcquire::https::Timeout "10";\n' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          if ! npx playwright install --with-deps chromium; then
+            echo "apt is unreachable. Installing the browser without extra system packages."
+            npx playwright install chromium
+          fi
           npm run test:e2e
