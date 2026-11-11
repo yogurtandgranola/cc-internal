@@ -39,6 +39,14 @@ Mock sign-in is refused in production unless `CCOS_DEMO_HOSTED=true` AND `CCOS_M
 - Live data in the hosted app needs Supabase sign-in first. Reason: setting any real credential turns the shared demo password off by design, and real tenant data must not sit behind a shared password. See `docs/CONTRIBUTING.md` for adding editors.
 - The Rent Manager MCP server reports `Mode: read/write`. The app adapter must call read methods only.
 
+## Real sign-in (built 2026-11-11, not yet used against the live project)
+- `lib/live-auth.ts`: Supabase checks the password (REST, publishable key). Roles and grants come from `profiles` and `user_role_grants` on every request. The cookie holds a hash of the user's grants, so a role change or deactivation ends the session on the next request.
+- `scripts/migrate.mjs` runs at the start of `npm run build`, production builds only (`VERCEL_ENV=production`), using `POSTGRES_URL_NON_POOLING`. It applies each migration once and refreshes the role seed. A failed migration fails the build, and Vercel keeps the last good deployment live.
+- First owner: the email in `CCOS_OWNER_EMAIL` becomes `owner_admin` on first successful sign-in, only while no owner exists. Owner steps are in `docs/first-owner-setup.md`.
+- Database TLS stays fully verified. `lib/pg-config.ts` trusts Supabase's published root CA plus Node's public roots. Never set `rejectUnauthorized: false`.
+- The Admin page, invites and the DAL still use demo data. Next: admin screen on the database, invite emails, MFA, live data adapters.
+- Put the Supabase variables back in `LIVE_SOURCE_VARS` (`lib/auth.ts`) once any real record is stored in Supabase.
+
 ## Decisions waiting on the owner
 1. Which Asana projects and Rent Manager properties to show first (candidates: Asana `1210103657050285` Deal Flow CRM, `1212008883960421` Ops, `1212599842540169` Investor Team. Pilot properties Lincoln Park and Emporia)
 2. Who gets access and at what role and scope

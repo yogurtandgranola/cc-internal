@@ -36,7 +36,7 @@ function secret(): string {
 }
 
 const b64 = (b: Buffer) => b.toString("base64url");
-const mac = (data: string) => b64(crypto.createHmac("sha256", secret()).update(data).digest());
+export const mac = (data: string) => b64(crypto.createHmac("sha256", secret()).update(data).digest());
 
 export function signSession(user: Pick<SessionUser, "id" | "sessionVersion">, ttlSec = 8 * 3600): string {
   const payload = `${user.id}.${user.sessionVersion}.${Math.floor(Date.now() / 1000) + ttlSec}`;

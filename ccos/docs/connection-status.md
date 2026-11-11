@@ -11,8 +11,8 @@ Last verified: 2026-11-10, in the build environment. "Verified" means exercised 
 | Notion | SOPs, plans | Not connected. Links only, and one fixture document used to test prompt injection | `lib/fixtures.ts` |
 | Google Drive | Source documents | Not connected. Links only | none |
 | Gmail, GHL, Meow | Optional later | Not connected, not started | none |
-| Supabase Auth | Production sign-in | Not wired. Mock auth is dev and test only and is refused in production | `tests/auth.test.ts` |
-| Supabase Postgres | Production data store | Project installed through Vercel on 2026-11-11 (free plan) and linked to the site for preview and production. It is empty: no migrations applied yet. Schema and RLS are tested on a local Postgres 16. The app does not read from it yet | `supabase/migrations`, `tests/db/rls.test.sql` |
+| Supabase Auth | Production sign-in | Built and tested with a fake Supabase and a real local Postgres. Not yet tested against the real project. Passwords are checked by Supabase. Roles come from our tables on every request. Owner set by `CCOS_OWNER_EMAIL`. See `docs/first-owner-setup.md` | `tests/live-auth.test.ts`, `lib/live-auth.ts` |
+| Supabase Postgres | Production data store | Project installed through Vercel on 2026-11-11 (free plan) and linked to the site for preview and production. The production build applies `supabase/migrations` through `scripts/migrate.mjs` (production builds only, never previews). Schema and RLS are tested on a local Postgres 16. The app does not read from it yet | `supabase/migrations`, `tests/db/rls.test.sql` |
 | AI providers | Optional analyst | Mock provider tested. OpenAI, Anthropic, Google adapters are registered stubs that report unavailable | `lib/ai/provider.ts`, `tests/ai.test.ts` |
 
 ## Repositories reviewed as hints (not touched)

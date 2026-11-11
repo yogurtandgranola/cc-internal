@@ -21,3 +21,10 @@ psqlf "$ROOT/supabase/migrations/0002_rls.sql"
 psqlf "$ROOT/supabase/seed_roles.sql"
 psqlf "$ROOT/tests/db/fixture.sql"
 psqlf "$ROOT/tests/db/rls.test.sql" 2>&1 | sed -E "s/^psql:[^ ]+ NOTICE:  //" | grep -v "^$"
+
+# The migration runner used by the Vercel build: apply to a fresh database, then repeat safely.
+run "$PGBIN/psql -h $WORK -p $PORT -U postgres -d postgres -q -c 'create database migtest'" >/dev/null
+# Roles belong to the whole cluster and already exist from the first database, so the second shim skips them.
+sed '/^create role/d' "$ROOT/tests/db/shim.sql" > "$WORK/shim2.sql"; chmod a+r "$WORK/shim2.sql"
+run "$PGBIN/psql -h $WORK -p $PORT -U postgres -d migtest -v ON_ERROR_STOP=1 -q -f $WORK/shim2.sql" >/dev/null
+node "$ROOT/tests/db/migrate-check.mjs" "postgresql://postgres@localhost:$PORT/migtest?host=$WORK"
