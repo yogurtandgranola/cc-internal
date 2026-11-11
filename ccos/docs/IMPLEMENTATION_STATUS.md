@@ -35,6 +35,7 @@ Legend: done and tested, built but untested, blocked, not started, pending appro
 | "Start here" home: needs action, follow up, portfolio KPIs, plan vs actual, infill budget vs spend, 90-day calendar, tool links, data-source status | Done on synthetic data, unit and e2e tested (`lib/dal/start-here.ts`). Operating budget vs actual, delinquency aging, work-order age show as Unavailable until their sources are connected |
 | Universal search | Done, scoped before matching |
 | CSV export | Done, scoped, formula-safe |
+| Real sign-in (Supabase Auth password check, roles from Postgres on every request, owner bootstrap by env email, demo kept) | Built, unit tested with fakes (9 tests), migration runner tested on real Postgres. Not yet exercised against the real Supabase project |
 | MFA | Not started. Planned with Supabase Auth |
 | Hosted demo mode (explicit opt-in, fail closed) | Done, unit tested and checked on a production build |
 | Mobile and tablet layout | Done, overflow test at 390px |
