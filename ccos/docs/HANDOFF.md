@@ -2,6 +2,8 @@
 
 Read this first. It lets any person or AI model (Claude, Codex, Gemini, Cursor) continue the work without the earlier chat.
 
+Planned features and per-role permissions: `ccos/docs/WISHLIST.md`.
+
 ## What this is
 A private, invitation-only operating portal for Cornell Communities (manufactured housing parks): Acquisitions, Operations, Investor Relations, and Executive views, with role-based access, KPIs with sources and as-of dates, a read-only AI analyst, and an audit trail. It is a control plane over Asana, Rent Manager, Notion, and Google Drive. It is read-only toward all of them.
 
