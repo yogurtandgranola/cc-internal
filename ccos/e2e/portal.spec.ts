@@ -44,7 +44,8 @@ test("ops staff sees properties but is blocked from investor data by URL, API, s
 
 test("IR manager cannot reach property or deal records", async ({ page }) => {
   await signIn(page, "ir@demo.example");
-  await expect(page.getByRole("heading", { name: "Welcome, Demo IR Manager" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start here" })).toBeVisible();
+  await expect(page.getByText("Welcome, Demo IR Manager")).toBeVisible();
   expect((await page.goto("/operations"))?.status()).toBe(403);
   expect((await page.goto("/deals"))?.status()).toBe(403);
   expect((await page.goto("/operations/p-cedar"))?.status()).toBe(404);

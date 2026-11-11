@@ -43,6 +43,7 @@ export const RENEWALS: Renewal[] = [
   { id: "r2", propertyId: "p-cedar", type: "Property tax", dueDate: day(98), owner: "Bookkeeper", verifiedBy: "County bill", sopUrl: "https://example.test/notion/sop-tax" },
   { id: "r3", propertyId: "p-river", type: "LLC annual report", dueDate: day(52), owner: "Ops Manager", verifiedBy: null },
   { id: "r4", propertyId: "p-river", type: "Insurance", dueDate: null, owner: "Ops Manager", verifiedBy: null, sopUrl: "https://example.test/notion/sop-insurance" },
+  { id: "r6", propertyId: "p-cedar", type: "LLC annual report", dueDate: day(118), owner: "Ops Manager", verifiedBy: "State filing receipt (Drive)" },
   { id: "r5", propertyId: "p-willow", type: "Loan maturity", dueDate: day(210), owner: "Executive", verifiedBy: "Loan agreement" },
 ];
 
