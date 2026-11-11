@@ -47,6 +47,14 @@ Mock sign-in is refused in production unless `CCOS_DEMO_HOSTED=true` AND `CCOS_M
 - The Admin page, invites and the DAL still use demo data. Next: admin screen on the database, invite emails, MFA, live data adapters.
 - Put the Supabase variables back in `LIVE_SOURCE_VARS` (`lib/auth.ts`) once any real record is stored in Supabase.
 
+## Roles and people (owner decisions, 2026-11-11)
+- Leo: `owner_admin`. Loren: `ops_manager`, all properties.
+- Ops staff and outside property managers: limit to assigned properties with one property-scoped grant per property (`ops_staff` or `external_pm` at scope `property`). Tested in `tests/coordinator-roles.test.ts`.
+- Dominic: on hold (works on the GHL pipeline). `acquisitions_manager` exists and is unassigned.
+- New `acquisitions_coordinator` (a VA can hold it): deal pipeline, due dates and diligence tasks. No prices or underwriting numbers.
+- New `ir_coordinator`: sees which IR tasks are due. No investor list, contact details, commitments or amounts, and no Investor Relations page. Investor names that Asana puts in a task title stay visible, because the title comes from Asana. Say so if those must be hidden too.
+- Later: build out the IR and acquisitions roles.
+
 ## Decisions waiting on the owner
 1. Which Asana projects and Rent Manager properties to show first (candidates: Asana `1210103657050285` Deal Flow CRM, `1212008883960421` Ops, `1212599842540169` Investor Team. Pilot properties Lincoln Park and Emporia)
 2. Who gets access and at what role and scope

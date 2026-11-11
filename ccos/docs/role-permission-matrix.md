@@ -12,8 +12,10 @@ A role with a home department can never reach records of another department, eve
 | ops_staff | operations | yes | yes |  |  |  |  |  |  |  | yes |  |
 | acquisitions_manager | acquisitions | yes |  |  | yes |  |  |  |  |  | yes | yes |
 | acquisitions_staff | acquisitions | yes |  |  |  |  |  |  |  |  | yes |  |
+| acquisitions_coordinator | acquisitions | yes |  |  |  |  |  |  |  |  | yes |  |
 | ir_manager | ir | yes |  |  |  | yes |  |  |  |  | yes | yes |
 | ir_staff | ir | yes |  |  |  | yes |  |  |  |  | yes |  |
+| ir_coordinator | ir | yes |  |  |  |  |  |  |  |  | yes |  |
 | external_pm | any (scope decides) |  | yes |  |  |  |  |  |  |  |  |  |
 | external_contractor | any (scope decides) | yes |  |  |  |  |  |  |  |  |  |  |
 | restricted_viewer | any (scope decides) | yes |  |  |  |  |  |  |  |  |  |  |
