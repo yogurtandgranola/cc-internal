@@ -125,6 +125,35 @@ export default async function Home() {
           </section>
         ) : null}
 
+        {s.keyDates.length > 0 ? (
+          <section className="card p-4 lg:col-span-3" aria-labelledby="kd">
+            <h2 id="kd" className="font-semibold">Key dates and business plan</h2>
+            <div className="mt-2 overflow-x-auto"><table className="t">
+              <thead><tr><th>Property</th><th>LLC renewal</th><th>Insurance renewal</th><th>Business plan</th></tr></thead>
+              <tbody>
+                {s.keyDates.map((r) => (
+                  <tr key={r.propertyId}>
+                    <td><Link href={`/operations/${r.propertyId}`}>{r.name}</Link></td>
+                    {([r.llc, r.insurance] as const).map((k, i) => (
+                      <td key={i}>
+                        {k === null ? <Badge tone="warn">Not tracked. Date needed</Badge> : k.dueDate === null ? <Badge tone="warn">Date needed</Badge> : (
+                          <><Badge tone={k.tone}>{k.dueDate}</Badge> <span className="muted text-xs">{k.daysUntil! < 0 ? `${-k.daysUntil!} days past due` : `in ${k.daysUntil} days`}</span></>
+                        )}
+                        {k?.sopUrl ? <div className="text-xs"><a href={k.sopUrl} target="_blank" rel="noopener noreferrer">How to renew</a></div> : null}
+                      </td>
+                    ))}
+                    <td>
+                      {r.planVersion ? <span>{r.planVersion}</span> : <span className="muted">No approved plan</span>}
+                      {r.planUrl ? <div className="text-xs"><a href={r.planUrl} target="_blank" rel="noopener noreferrer">Open property manual</a></div> : <div className="muted text-xs">No manual linked</div>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table></div>
+            <p className="muted mt-2 text-xs">Red is 30 days or less or past due. Yellow is 31 to 90 days. Green is more than 90 days. A blank date means nobody has checked the policy or state filing yet. The business plan lives in the Business plan section of each Notion property manual.</p>
+          </section>
+        ) : null}
+
         {s.budget.length > 0 ? (
           <section className="card p-4 lg:col-span-2" aria-labelledby="bud">
             <h2 id="bud" className="font-semibold">Infill project budget vs spend</h2>

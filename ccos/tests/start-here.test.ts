@@ -45,4 +45,21 @@ describe("start here dashboard", () => {
     const s = startHere(u("ops"), store);
     expect(s.unavailable.map((x) => x.metric).join(" ")).toMatch(/Operating budget/);
   });
+
+  it("key dates: unknown insurance date says date needed, never a far-off date", () => {
+    const s = startHere(u("ops"), store);
+    const river = s.keyDates.find((r) => r.propertyId === "p-river")!;
+    expect(river.insurance).not.toBeNull();
+    expect(river.insurance!.dueDate).toBeNull();
+    expect(river.insurance!.tone).toBe("muted");
+    expect(river.llc!.daysUntil).not.toBeNull();
+    const willow = s.keyDates.find((r) => r.propertyId === "p-willow")!;
+    expect(willow.llc).toBeNull();
+    expect(willow.insurance).toBeNull();
+  });
+
+  it("key dates stay inside the user's scope", () => {
+    expect(startHere(u("pm"), store).keyDates.map((r) => r.propertyId)).toEqual(["p-cedar"]);
+    expect(startHere(u("ir"), store).keyDates).toEqual([]);
+  });
 });

@@ -33,6 +33,16 @@ export type PlanRow = {
   source: string | null;
 };
 
+export type KeyDate = { dueDate: string | null; daysUntil: number | null; tone: "good" | "warn" | "bad" | "muted"; verifiedBy: string | null; sopUrl: string | null; asanaUrl: string | null };
+export type KeyDateRow = {
+  propertyId: string;
+  name: string;
+  llc: KeyDate | null;
+  insurance: KeyDate | null;
+  planVersion: string | null;
+  planUrl: string | null;
+};
+
 export type BudgetRow = { propertyId: string; name: string; budget: number | null; spent: number | null; pctSpent: number | null; nextStage: string | null; risk: string | null };
 
 const DAY = 86_400_000;
@@ -122,6 +132,26 @@ export function startHere(u: SessionUser, store: Store, now: number = Date.now()
     return { propertyId: p.id, name: p.name, planVersion: f.plan?.version ?? null, occupancy: f.occupancy, targetOccupancy: targetOcc, occupancyGap: gap, ttmNoi: f.ttmNoi, targetTtmNoi: f.plan?.targetTtmNoi ?? null, noiVariance: f.variance, status, asOf: f.asOf, source: f.source };
   });
 
+  // ---- Key dates: LLC renewal, insurance renewal, and where the business plan lives ----
+  // A missing date is shown as "date needed". It is never guessed and never treated as far away.
+  const toKeyDate = (r: (typeof renewals)[number] | undefined): KeyDate | null => {
+    if (!r) return null;
+    const d = r.daysUntil;
+    const tone = d === null ? "muted" : d <= 30 ? "bad" : d <= 90 ? "warn" : "good";
+    return { dueDate: r.dueDate, daysUntil: d, tone, verifiedBy: r.verifiedBy, sopUrl: r.sopUrl ?? null, asanaUrl: r.asanaUrl ?? null };
+  };
+  const keyDates: KeyDateRow[] = dal.listProperties(u).map((p) => {
+    const mine = renewals.filter((r) => r.propertyId === p.id);
+    return {
+      propertyId: p.id,
+      name: p.name,
+      llc: toKeyDate(mine.find((r) => /llc|entity/i.test(r.type))),
+      insurance: toKeyDate(mine.find((r) => /insurance/i.test(r.type))),
+      planVersion: p.financials?.plan?.version ?? null,
+      planUrl: p.links.notion ?? null,
+    };
+  });
+
   // ---- Infill budget vs spend (project budget, not operating budget) ----
   const budget: BudgetRow[] = [];
   for (const p of props) {
@@ -158,5 +188,5 @@ export function startHere(u: SessionUser, store: Store, now: number = Date.now()
     { metric: "Work-order age", reason: "Needs a work-order source. Not connected." },
   ];
 
-  return { today, actions, followUps, portfolio, plan, budget, upcoming, sources, unavailable, counts: { exceptions: exceptions.length, myOpen: mine.length } };
+  return { today, actions, keyDates, followUps, portfolio, plan, budget, upcoming, sources, unavailable, counts: { exceptions: exceptions.length, myOpen: mine.length } };
 }
