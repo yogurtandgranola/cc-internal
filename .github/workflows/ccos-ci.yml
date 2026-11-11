@@ -36,5 +36,11 @@ jobs:
       - run: npm run build
       - name: Playwright
         run: |
-          npx playwright install --with-deps chromium
+          # The browser install downloads packages with apt, which is sometimes unreachable. Retry, then fail loudly.
+          ok=0
+          for attempt in 1 2 3; do
+            if npx playwright install --with-deps chromium; then ok=1; break; fi
+            echo "browser install attempt $attempt failed, retrying"; sleep $((attempt * 20))
+          done
+          [ "$ok" = 1 ] || { echo "Browser install failed after 3 attempts"; exit 1; }
           npm run test:e2e
