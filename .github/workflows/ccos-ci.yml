@@ -44,3 +44,4 @@ jobs:
             npx playwright install chromium
           fi
           npm run test:e2e
+          npm run test:e2e:live

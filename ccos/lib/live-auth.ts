@@ -7,13 +7,14 @@ import { mac } from "./auth";
 import { ROLES } from "./roles";
 import type { Grant, SessionUser } from "./authz";
 import { pgConfig } from "./pg-config";
+import { SEED_PROPERTIES } from "./seed-properties";
 
 export type Db = {
   query: <T = Record<string, unknown>>(sql: string, params?: unknown[]) => Promise<T[]>;
   tx: <T>(fn: (q: Db["query"]) => Promise<T>) => Promise<T>;
 };
 export type LiveDeps = { fetch: typeof fetch; db: Db; env: Record<string, string | undefined>; now: () => number };
-export type LoginResult = { ok: true; token: string; user: SessionUser } | { ok: false; reason: "invalid" | "no_access" | "throttled" | "unavailable" };
+export type LoginResult = { ok: true; token: string; user: SessionUser } | { ok: false; reason: "invalid" | "no_access" | "switched_off" | "throttled" | "unavailable" };
 
 const TOKEN_PREFIX = "L1";
 const TTL_SEC = 8 * 3600;
@@ -53,16 +54,16 @@ export function defaultDeps(): LiveDeps {
 }
 
 // ---- session state ----
-type Profile = { id: string; email: string; name: string; active: boolean };
+type Profile = { id: string; email: string; name: string; active: boolean; must_change_password: boolean };
 const isRole = (r: string): r is Grant["role"] => (ROLES as readonly string[]).includes(r);
 
 async function loadUser(db: Db, id: string): Promise<SessionUser | null> {
-  const [p] = await db.query<Profile>("select id, email, name, active from public.profiles where id = $1", [id]);
+  const [p] = await db.query<Profile>("select id, email, name, active, must_change_password from public.profiles where id = $1", [id]);
   if (!p || !p.active) return null;
   const rows = await db.query<{ role: string; scope_type: Grant["scopeType"]; scope_id: string | null }>(
     "select role, scope_type, scope_id from public.user_role_grants where user_id = $1 and revoked_at is null", [id]);
   const grants: Grant[] = rows.filter((r) => isRole(r.role)).map((r) => ({ role: r.role as Grant["role"], scopeType: r.scope_type, scopeId: r.scope_id }));
-  return { id: p.id, email: p.email, name: p.name, active: true, sessionVersion: 1, grants };
+  return { id: p.id, email: p.email, name: p.name, active: true, sessionVersion: 1, grants, live: true, mustChangePassword: p.must_change_password };
 }
 // Any change to active status or to grants changes this value, which ends existing sessions on the next request.
 export function stateHash(u: Pick<SessionUser, "active" | "grants">): string {
@@ -125,7 +126,12 @@ export async function liveLogin(emailIn: string, password: string, deps: LiveDep
 
   try {
     let user = await loadUser(deps.db, authUserId);
-    if (!user) user = await bootstrapOwner(deps, authUserId, email);
+    if (!user) {
+      // The password was right. Say clearly when the owner has switched this person off.
+      const p = (await deps.db.query<{ active: boolean }>("select active from public.profiles where id = $1", [authUserId]))[0];
+      if (p && !p.active) { await auditEvent(deps.db, email, "login.switched_off", false); return { ok: false, reason: "switched_off" }; }
+      user = await bootstrapOwner(deps, authUserId, email);
+    }
     if (!user || user.grants.length === 0) { await auditEvent(deps.db, email, "login.no_access", false); return { ok: false, reason: "no_access" }; }
     attempts.delete(email);
     await auditEvent(deps.db, authUserId, "login.success", true);
@@ -143,10 +149,20 @@ async function bootstrapOwner(deps: LiveDeps, authUserId: string, email: string)
     let org = (await q<{ id: string }>("select id from public.organizations order by created_at limit 1"))[0];
     if (!org) org = (await q<{ id: string }>("insert into public.organizations (name) values ('Cornell Communities') returning id"))[0];
     if (!org) throw new Error("Could not create the organization");
+    await seedProperties(q, org.id);
     const name = (email.split("@")[0] ?? email).replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     await q("insert into public.profiles (id, org_id, email, name) values ($1, $2, $3, $4) on conflict (id) do nothing", [authUserId, org.id, email, name]);
     await q("insert into public.user_role_grants (user_id, role, scope_type, scope_id, created_by) values ($1, 'owner_admin', 'org', null, $1)", [authUserId]);
     await q("insert into public.audit_events (actor, action, target, ok) values ($1, 'bootstrap.first_owner', $2, true)", [authUserId, email]);
   });
   return loadUser(deps.db, authUserId);
+}
+
+// The company's properties, by name only, so the permission pickers list real parks. Runs only while the table is empty.
+export async function seedProperties(q: Db["query"], orgId: string): Promise<void> {
+  const have = await q<{ n: number }>("select count(*)::int as n from public.properties");
+  if ((have[0]?.n ?? 0) > 0) return;
+  for (const p of SEED_PROPERTIES) {
+    await q("insert into public.properties (id, org_id, name, city, state) values ($1, $2, $3, $4, $5) on conflict (id) do nothing", [p.id, orgId, p.name, p.city, p.state]);
+  }
 }

@@ -17,6 +17,10 @@ export type SessionUser = {
   active: boolean;
   sessionVersion: number;
   grants: Grant[];
+  /** True for a real account that signed in through Supabase. Demo accounts leave this unset. */
+  live?: boolean;
+  /** True while the person still uses a temporary password and has to choose their own. */
+  mustChangePassword?: boolean;
 };
 
 // A resource describes what is being accessed. Scope coverage is derived from these fields.

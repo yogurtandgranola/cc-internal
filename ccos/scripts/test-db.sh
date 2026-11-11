@@ -28,3 +28,9 @@ run "$PGBIN/psql -h $WORK -p $PORT -U postgres -d postgres -q -c 'create databas
 sed '/^create role/d' "$ROOT/tests/db/shim.sql" > "$WORK/shim2.sql"; chmod a+r "$WORK/shim2.sql"
 run "$PGBIN/psql -h $WORK -p $PORT -U postgres -d migtest -v ON_ERROR_STOP=1 -q -f $WORK/shim2.sql" >/dev/null
 node "$ROOT/tests/db/migrate-check.mjs" "postgresql://postgres@localhost:$PORT/migtest?host=$WORK"
+
+# People and permissions, end to end on a real database (first owner, adding people, every safety rule).
+run "$PGBIN/psql -h $WORK -p $PORT -U postgres -d postgres -q -c 'create database admintest'" >/dev/null
+run "$PGBIN/psql -h $WORK -p $PORT -U postgres -d admintest -v ON_ERROR_STOP=1 -q -f $WORK/shim2.sql" >/dev/null
+node "$ROOT/tests/db/migrate-only.mjs" "postgresql://postgres@localhost:$PORT/admintest?host=$WORK"
+CCOS_TEST_DB_URL="postgresql://postgres@localhost:$PORT/admintest?host=$WORK" npx vitest run tests/live-admin.db.test.ts
