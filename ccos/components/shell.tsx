@@ -7,7 +7,7 @@ import { visibleDepartments } from "@/lib/dal";
 export function Shell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const depts = visibleDepartments(user);
   const demo = process.env.CCOS_MODE !== "live";
-  const nav: { href: string; label: string }[] = [{ href: "/", label: "Home" }];
+  const nav: { href: string; label: string }[] = [{ href: "/", label: "Start here" }];
   if (depts.includes("acquisitions")) nav.push({ href: "/deals", label: "Deals" });
   if (depts.includes("operations")) nav.push({ href: "/operations", label: "Operations" });
   if (depts.includes("ir")) nav.push({ href: "/investor-relations", label: "Investor Relations" });

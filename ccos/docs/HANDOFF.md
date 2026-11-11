@@ -33,6 +33,12 @@ Not connected, not built (do not claim otherwise):
 ## How the hosted demo is gated
 Mock sign-in is refused in production unless `CCOS_DEMO_HOSTED=true` AND `CCOS_MODE` is not `live` AND none of these are set: `ASANA_ACCESS_TOKEN`, `RENTMANAGER_BASE_URL`, `RENTMANAGER_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`. Connecting any real source turns the demo sign-in off by design. Vercel env vars set for the demo: `CCOS_DEMO_HOSTED`, `CCOS_SESSION_SECRET`, `CCOS_DEMO_PASSWORD`, `CCOS_PERSIST`. The demo password is shared by the owner directly with testers. It is not stored in git.
 
+## 2026-11-11 session: Start here dashboard
+- Home is now "Start here" (`app/(app)/page.tsx`, data from `lib/dal/start-here.ts`, tests in `tests/start-here.test.ts`).
+- Connection check from the build session (read only, no data stored in git): Rent Manager (12 properties, 11 active), Asana (workspace reachable), Notion property manuals, Drive property journals, Vercel and GitHub all answered. The hosted app itself still has no credentials, so it shows synthetic data.
+- Live data in the hosted app needs Supabase sign-in first. Reason: setting any real credential turns the shared demo password off by design, and real tenant data must not sit behind a shared password. See `docs/CONTRIBUTING.md` for adding editors.
+- The Rent Manager MCP server reports `Mode: read/write`. The app adapter must call read methods only.
+
 ## Decisions waiting on the owner
 1. Which Asana projects and Rent Manager properties to show first (candidates: Asana `1210103657050285` Deal Flow CRM, `1212008883960421` Ops, `1212599842540169` Investor Team. Pilot properties Lincoln Park and Emporia)
 2. Who gets access and at what role and scope
