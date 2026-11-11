@@ -24,7 +24,13 @@ jobs:
       - run: npm test
       - name: Database RLS tests
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql postgresql-contrib >/dev/null
+          # Use Postgres if the runner already has it. Otherwise install it, retrying because the apt mirror is sometimes unreachable.
+          if ! ls /usr/lib/postgresql/*/bin/initdb >/dev/null 2>&1; then
+            for attempt in 1 2 3; do
+              sudo apt-get update -qq && sudo apt-get install -y -qq postgresql postgresql-contrib >/dev/null && break
+              echo "apt attempt $attempt failed, retrying"; sleep $((attempt * 15))
+            done
+          fi
           sudo chmod -R a+rX .
           npm run test:db
       - run: npm run build
