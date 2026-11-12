@@ -23,6 +23,7 @@ ${rows.join("\n")}
 - \`view_deal_financials\`: asking price, LOI price, NOI, cap rate, lender, underwriting version.
 - \`view_investor_pii\`: investor identity, contact, commitments.
 - \`view_executive\`: cross-department executive briefing.
+- \`upload_data\`: upload the Rent Manager weekly packet (Upload data page). Owner and operations manager.
 - \`request_external_write\`: reserved. No external write path exists in v1, so this grants nothing yet.
 `;
 fs.writeFileSync(new URL("../docs/role-permission-matrix.md", import.meta.url), out);

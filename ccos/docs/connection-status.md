@@ -32,3 +32,9 @@ Code is built and reads only. It fills in once the owner adds these in Vercel (S
 RENTMANAGER_BASE_URL (https://ccmhc.api.rentmanager.com), RENTMANAGER_USERNAME, RENTMANAGER_PASSWORD, RENTMANAGER_LOCATION_ID, CRON_SECRET (any long random text).
 Use a Rent Manager user with read-only rights. Adding these turns the demo sign-in off, by design.
 Vercel runs the refresh daily at 11:00 UTC. Shows occupied sites, total sites and occupancy per property. Collections and delinquency are not synced yet.
+
+## Manual upload (Rent Manager weekly packet)
+Owner and operations manager see "Upload data". Drop in the weekly packet PDF, check the preview, press Save.
+Reads occupied and total sites, charged and paid so far this month, amount owed, move-ins and move-outs per property.
+Built for properties that are not in the live Rent Manager login (Emporia, Parktown, Spring Brook). Only totals are kept. No tenant names are stored.
+Saved rows are labelled "Uploaded Rent Manager weekly packet" with the report date, and every upload is recorded in the audit log.
