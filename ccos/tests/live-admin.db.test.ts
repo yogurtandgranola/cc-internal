@@ -68,12 +68,12 @@ describe.skipIf(!URL)("people and permissions on a real database", () => {
     expect(owner.grants).toEqual([{ role: "owner_admin", scopeType: "org", scopeId: null }]);
     expect(owner.live).toBe(true);
     const props = await listPropertyChoices(owner, db);
-    expect(props.length).toBe(11);
+    expect(props.length).toBe(12);
     expect(props.map((p) => p.name)).toContain("Lincoln Park MH/RV");
     // a second sign-in does not create another owner or reseed
     const again = await liveLogin(OWNER, "owner-password-123", deps());
     expect(again.ok).toBe(true);
-    expect((await listPropertyChoices(owner, db)).length).toBe(11);
+    expect((await listPropertyChoices(owner, db)).length).toBe(12);
   });
 
   it("adds ops staff limited to two properties, with a temporary password they must change", async () => {
