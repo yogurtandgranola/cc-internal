@@ -13,6 +13,7 @@ export const PERMISSIONS = [
   "manage_ai",
   "manage_tasks_local",
   "request_external_write",
+  "upload_data",
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -34,7 +35,7 @@ export type Role = (typeof ROLES)[number];
 
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   owner_admin: PERMISSIONS,
-  ops_manager: ["view_company_summary", "view_property_financials", "view_tenant_details", "manage_tasks_local", "request_external_write"],
+  ops_manager: ["view_company_summary", "view_property_financials", "view_tenant_details", "manage_tasks_local", "request_external_write", "upload_data"],
   ops_staff: ["view_company_summary", "view_property_financials", "manage_tasks_local"],
   acquisitions_manager: ["view_company_summary", "view_deal_financials", "manage_tasks_local", "request_external_write"],
   acquisitions_staff: ["view_company_summary", "manage_tasks_local"],

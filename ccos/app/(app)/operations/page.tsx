@@ -16,24 +16,26 @@ export default async function OperationsPage() {
     return (
       <>
         <Crumbs items={[{ label: "Home", href: "/" }, { label: "Operations" }]} />
-        <PageHeader title="Operations" sub="Live occupancy from Rent Manager, refreshed daily. Only the properties you have access to are shown." />
+        <PageHeader title="Operations" sub="Occupancy from Rent Manager (live) or from uploaded weekly packets. Only the properties you have access to are shown." />
         {!connected ? <p className="card mb-4 p-3" role="status">Rent Manager is not connected yet. The owner adds the Rent Manager login in Vercel, then numbers appear here after the next refresh.</p> : null}
         <div className="card overflow-x-auto">
           <table className="t" data-testid="property-table">
-            <thead><tr><th>Property</th><th>Occupied sites</th><th>Total sites</th><th>Occupancy</th><th>As of</th></tr></thead>
+            <thead><tr><th>Property</th><th>Occupied sites</th><th>Total sites</th><th>Occupancy</th><th>Collected so far this month</th><th>Owed by residents</th><th>As of</th></tr></thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id}>
                   <td>{r.name}{r.city ? <div className="muted text-xs">{r.city}, {r.state}</div> : null}</td>
                   <td>{r.occupied ?? "Unavailable"}</td><td>{r.rentable ?? "Unavailable"}</td>
                   <td>{r.occupied != null && r.rentable ? `${((r.occupied / r.rentable) * 100).toFixed(1)}%` : "Unavailable"}</td>
+                  <td>{r.charged && r.paid != null ? `${((r.paid / r.charged) * 100).toFixed(1)}%` : "Unavailable"}</td>
+                  <td>{r.owed != null ? r.owed.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }) : "Unavailable"}</td>
                   <td>{r.asOf ? `${dateText(r.asOf)} (${r.source})` : "No data yet"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="muted mt-2 text-xs">Occupied means a current tenant in Rent Manager. Collections, budget and renewals are not live yet and are never estimated.</p>
+        <p className="muted mt-2 text-xs">Occupied means a current tenant in Rent Manager. Collections and amounts owed come only from uploaded packets for now. Budget and renewals are not live yet and are never estimated.</p>
       </>
     );
   }

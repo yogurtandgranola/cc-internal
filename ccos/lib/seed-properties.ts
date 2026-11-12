@@ -11,6 +11,7 @@ export const SEED_PROPERTIES: { id: string; name: string; city: string | null; s
   { id: "parktown", name: "Parktown", city: null, state: null },
   { id: "redwood-court-mhc", name: "Redwood Court MHC", city: "Vineland", state: "NJ" },
   { id: "shady-acres-mhc", name: "Shady Acres MHC", city: "Danbury", state: "CT" },
+  { id: "spring-brook", name: "Spring Brook", city: null, state: null },
   { id: "springhill-mhc", name: "Springhill MHC", city: "Louisa", state: "KY" },
   { id: "sunflower-estates", name: "Sunflower Estates", city: "Great Bend", state: "KS" },
 ];
