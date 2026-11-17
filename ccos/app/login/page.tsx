@@ -22,11 +22,13 @@ export default function LoginPage() {
         </div>
       ) : (
         <>
-          <div className="mt-4 rounded-md px-3 py-2 text-xs font-semibold" style={{ background: "#fde68a", color: "#422006" }}>
-            {hosted ? "DEMO DATA. Every record in this portal is fictional." : demoOn ? "DEMO DATA. Synthetic accounts for local testing only." : "SAMPLE DATA. Live data is not connected yet."}
-          </div>
+          {demoOn || !liveOn ? (
+            <div className="mt-4 rounded-md px-3 py-2 text-xs font-semibold" style={{ background: "#fde68a", color: "#422006" }}>
+              {hosted ? "DEMO DATA. Every record in this portal is fictional." : demoOn ? "DEMO DATA. Synthetic accounts for local testing only." : "SAMPLE DATA. Live data is not connected yet."}
+            </div>
+          ) : null}
           <LoginForm />
-          {liveOn ? <p className="muted mt-6 text-sm">Team members: sign in with your own email and password. Records stay fictional until live data is connected.</p> : null}
+          {liveOn ? <p className="muted mt-6 text-sm">Sign in with your own work email and password. You see only the properties you have been given access to.</p> : null}
           {hosted ? (
             <p className="muted mt-3 text-sm">Testing the demo? Ask the person who shared this link for the demo account and password. Demo changes may reset.</p>
           ) : demoOn ? (

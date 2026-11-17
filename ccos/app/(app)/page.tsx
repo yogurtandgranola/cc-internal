@@ -6,6 +6,7 @@ import { startHere, type PlanRow } from "@/lib/dal/start-here";
 import { can } from "@/lib/authz";
 import { Badge, Empty, PageHeader } from "@/components/ui";
 import { kpiText, money, pct } from "@/lib/format";
+import { LiveHome } from "./live-home";
 
 const ASANA = (gid: string) => `https://app.asana.com/0/${gid}/list`;
 const planTone = (s: PlanRow["status"]) => (s === "ahead" ? "good" : s === "on_track" ? "muted" : s === "behind" ? "bad" : "warn") as "good" | "warn" | "bad" | "muted";
@@ -19,6 +20,7 @@ function Link2({ href, external, children }: { href: string; external?: boolean;
 
 export default async function Home() {
   const user = await requireUser();
+  if (user.live) return <LiveHome user={user} />;
   const store = getStore();
   const s = startHere(user, store);
   const depts = dal.visibleDepartments(user);
