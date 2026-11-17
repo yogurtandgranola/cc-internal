@@ -6,7 +6,7 @@ import { visibleDepartments } from "@/lib/dal";
 
 export function Shell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const depts = visibleDepartments(user);
-  const demo = process.env.CCOS_MODE !== "live";
+  const demo = process.env.CCOS_MODE !== "live" && !user.live;
   const nav: { href: string; label: string }[] = [{ href: "/", label: "Start here" }];
   if (depts.includes("acquisitions")) nav.push({ href: "/deals", label: "Deals" });
   if (depts.includes("operations")) nav.push({ href: "/operations", label: "Operations" });
@@ -31,6 +31,11 @@ export function Shell({ user, children }: { user: SessionUser; children: React.R
         </nav>
       </aside>
       <div className="min-w-0 flex-1">
+        {user.live ? (
+          <div role="status" className="px-4 py-1.5 text-center text-xs font-semibold" style={{ background: "#fde68a", color: "#422006" }}>
+            Real data: Start here, Operations and Upload data. Other pages (deals, investors, executive, tasks, AI) still show sample records until they are connected.
+          </div>
+        ) : null}
         {demo ? (
           <div role="status" data-testid="demo-banner" className="px-4 py-1.5 text-center text-xs font-semibold" style={{ background: "#fde68a", color: "#422006" }}>
             DEMO DATA · All records are synthetic and no external system is connected
