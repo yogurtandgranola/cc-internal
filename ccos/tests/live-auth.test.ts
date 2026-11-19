@@ -17,6 +17,12 @@ function fake(opts: { password?: string; authId?: string; env?: Record<string, s
     if (sql.includes("from public.properties")) return [{ n: state.properties.length }];
     if (sql.includes("insert into public.properties")) { state.properties.push({ id: p[0] }); return []; }
     if (sql.includes("insert into public.audit_events")) { state.audit.push({ args: p }); return []; }
+    if (sql.includes("action = 'login.failed'")) {
+      const mine = state.audit.map((a) => a.args as unknown[]).filter((a) => a[1] === "login.success" ? a[2] === p[0] : a[0] === p[0]);
+      let n = 0;
+      for (const a of mine) n = a[1] === "login.success" ? 0 : a[1] === "login.failed" ? n + 1 : n;
+      return [{ n }];
+    }
     throw new Error("unexpected sql: " + sql);
   };
   const db: Db = { query: exec as Db["query"], tx: async (fn) => fn(exec as Db["query"]) };
@@ -64,6 +70,21 @@ describe("real sign-in", () => {
     addUser(f.state, "auth-1", "ops_manager", ["department", "operations"]);
     for (let i = 0; i < 5; i++) expect(await liveLogin("a@x.test", "nope", f.deps)).toEqual({ ok: false, reason: "invalid" });
     expect(await liveLogin("a@x.test", "right-password-123", f.deps)).toEqual({ ok: false, reason: "throttled" });
+  });
+
+  it("keeps the lockout after a restart, because failed tries are stored in the database", async () => {
+    const f = fake();
+    addUser(f.state, "auth-1", "ops_manager", ["department", "operations"]);
+    for (let i = 0; i < 5; i++) await liveLogin("a@x.test", "nope", f.deps);
+    resetLiveThrottle(); // a new serverless instance has an empty memory
+    expect(await liveLogin("a@x.test", "right-password-123", f.deps)).toEqual({ ok: false, reason: "throttled" });
+  });
+
+  it("is switched off outside production, so previews never reach real data", () => {
+    const base = { SUPABASE_URL: "u", SUPABASE_PUBLISHABLE_KEY: "k", POSTGRES_URL: "p" };
+    expect(liveAuthConfigured({ ...base, VERCEL_ENV: "production" })).toBe(true);
+    expect(liveAuthConfigured({ ...base, VERCEL_ENV: "preview" })).toBe(false);
+    expect(liveAuthConfigured({ ...base, VERCEL_ENV: "development" })).toBe(false);
   });
 
   it("default deny: a valid login with no profile gets no access", async () => {
