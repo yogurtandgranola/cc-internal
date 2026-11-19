@@ -23,7 +23,12 @@ const supabaseUrl = (e: LiveDeps["env"]) => e.SUPABASE_URL || e.NEXT_PUBLIC_SUPA
 const publishableKey = (e: LiveDeps["env"]) => e.SUPABASE_PUBLISHABLE_KEY || e.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || e.SUPABASE_ANON_KEY;
 const dbUrl = (e: LiveDeps["env"]) => e.POSTGRES_URL || e.POSTGRES_URL_NON_POOLING;
 
+// Preview deployments share the same Supabase project as production. They must never reach real data,
+// so real sign-in and the live database exist only in production (VERCEL_ENV unset means local or test).
+const notProduction = (e: LiveDeps["env"]) => Boolean(e.VERCEL_ENV) && e.VERCEL_ENV !== "production";
+
 export function liveAuthConfigured(env: LiveDeps["env"] = process.env): boolean {
+  if (notProduction(env)) return false;
   return Boolean(supabaseUrl(env) && publishableKey(env) && dbUrl(env));
 }
 export const isLiveToken = (t: string | undefined | null): t is string => Boolean(t && t.startsWith(TOKEN_PREFIX + "."));
@@ -33,6 +38,7 @@ const g = globalThis as unknown as { __ccos_pool?: pg.Pool };
 export function defaultDb(env: LiveDeps["env"] = process.env): Db {
   const url = dbUrl(env);
   if (!url) throw new Error("No database configured");
+  if (notProduction(env)) throw new Error("The live database is not available outside production");
   if (!g.__ccos_pool) g.__ccos_pool = new pg.Pool({ ...pgConfig(url), max: 3, idleTimeoutMillis: 10_000 });
   const pool = g.__ccos_pool;
   const query: Db["query"] = async (sql, params = []) => (await pool.query(sql, params as unknown[])).rows;
@@ -104,6 +110,14 @@ export async function liveLogin(emailIn: string, password: string, deps: LiveDep
   const now = deps.now();
   const a = attempts.get(email);
   if (a && now - a.first < 15 * 60_000 && a.n >= 5) return { ok: false, reason: "throttled" };
+  // Failed tries are also counted in the database, so the limit holds across serverless instances and restarts.
+  try {
+    const [c] = await deps.db.query<{ n: number }>(
+      `select count(*)::int as n from public.audit_events
+       where actor = $1 and action = 'login.failed' and at > now() - interval '15 minutes'
+         and at > coalesce((select max(at) from public.audit_events where action = 'login.success' and target = $1), '-infinity'::timestamptz)`, [email]);
+    if ((c?.n ?? 0) >= 5) return { ok: false, reason: "throttled" };
+  } catch { /* the in-memory limit above still applies */ }
   const fail = () => {
     const cur = a && now - a.first < 15 * 60_000 ? a : { n: 0, first: now };
     attempts.set(email, { n: cur.n + 1, first: cur.first });
@@ -134,7 +148,7 @@ export async function liveLogin(emailIn: string, password: string, deps: LiveDep
     }
     if (!user || user.grants.length === 0) { await auditEvent(deps.db, email, "login.no_access", false); return { ok: false, reason: "no_access" }; }
     attempts.delete(email);
-    await auditEvent(deps.db, authUserId, "login.success", true);
+    await auditEvent(deps.db, authUserId, "login.success", true, email);
     return { ok: true, token: signLiveToken(user, now), user };
   } catch { return { ok: false, reason: "unavailable" }; }
 }

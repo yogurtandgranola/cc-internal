@@ -10,7 +10,9 @@ import { hashPassword, verifyPassword } from "./password";
 // Add them back the moment any real record is stored in Supabase or real sign-in replaces the demo.
 const LIVE_SOURCE_VARS = ["ASANA_ACCESS_TOKEN", "RENTMANAGER_BASE_URL", "RENTMANAGER_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY"];
 export function liveSourcesConfigured(): boolean {
-  return LIVE_SOURCE_VARS.some((k) => Boolean(process.env[k]));
+  // In production, a connected database means real records may exist, so demo sign-in stays off.
+  const realDb = process.env.VERCEL_ENV === "production" && Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING);
+  return realDb || LIVE_SOURCE_VARS.some((k) => Boolean(process.env[k]));
 }
 // Hosted demo: an explicit opt-in for a web deployment that holds synthetic data only.
 export function hostedDemoEnabled(): boolean {
