@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/session";
 import { can, HttpError } from "@/lib/authz";
 import { defaultDb } from "@/lib/live-auth";
 import { parsePacket, pdfPages, type PacketRow } from "@/lib/uploads/rm-packet";
+import { parseSnapshotCsv } from "@/lib/uploads/csv";
 import { resolveRows, savePacket, type Resolved } from "@/lib/uploads/save";
 
 export type UploadState = { error?: string; ok?: string; fileName?: string; rows?: Resolved[]; problems?: string[] } | undefined;
@@ -21,8 +22,11 @@ export async function previewAction(_prev: UploadState, f: FormData): Promise<Up
     const file = f.get("file");
     if (!(file instanceof File) || file.size === 0) return { error: "Choose a PDF file first." };
     if (file.size > MAX) return { error: "That file is too large. The limit is 5 MB." };
-    if (!file.name.toLowerCase().endsWith(".pdf")) return { error: "This upload reads the Rent Manager weekly packet PDF." };
-    const { rows, problems } = parsePacket(await pdfPages(new Uint8Array(await file.arrayBuffer())));
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".pdf") && !name.endsWith(".csv")) return { error: "Upload the Rent Manager weekly packet (PDF) or a snapshot file (CSV)." };
+    const { rows, problems } = name.endsWith(".csv")
+      ? parseSnapshotCsv(await file.text())
+      : parsePacket(await pdfPages(new Uint8Array(await file.arrayBuffer())));
     if (rows.length === 0) return { error: problems[0] ?? "No property totals were found in that file." };
     return { fileName: file.name, rows: await resolveRows(defaultDb(), rows), problems };
   } catch (e) {

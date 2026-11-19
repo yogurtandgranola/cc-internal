@@ -10,8 +10,8 @@ export function UploadForm() {
   return (
     <div className="space-y-4">
       <form action={readFile} className="card space-y-3 p-5">
-        <label htmlFor="file" className="block text-sm font-medium">Rent Manager weekly packet (PDF)</label>
-        <input id="file" name="file" type="file" accept="application/pdf,.pdf" required className="w-full" />
+        <label htmlFor="file" className="block text-sm font-medium">Rent Manager weekly packet (PDF) or snapshot file (CSV)</label>
+        <input id="file" name="file" type="file" accept="application/pdf,.pdf,text/csv,.csv" required className="w-full" />
         {prev?.error ? <p role="alert" className="text-sm" style={{ color: "var(--bad)" }}>{prev.error}</p> : null}
         <button className="btn btn-primary" disabled={reading}>{reading ? "Reading…" : "Read file"}</button>
       </form>
@@ -35,7 +35,7 @@ export function UploadForm() {
           </div>
           {prev.rows.flatMap((r) => r.warnings.map((w) => <p key={r.propertyName + w} className="muted text-sm">{r.propertyName}: {w}</p>))}
           {prev.problems?.map((p) => <p key={p} role="alert" className="text-sm">{p}</p>)}
-          <p className="muted text-xs">Numbers are saved as &quot;Uploaded Rent Manager weekly packet&quot; with the report date. Charged and paid cover the month so far, not a full month.</p>
+          <p className="muted text-xs">Numbers are saved with their source and report date. Charged and paid cover the month so far, not a full month.</p>
           <input type="hidden" name="payload" value={JSON.stringify(prev.rows.map((r) => { const { propertyId, ...rest } = r; void propertyId; return rest; }))} />
           <input type="hidden" name="fileName" value={prev.fileName ?? ""} />
           {saved?.error ? <p role="alert" className="text-sm" style={{ color: "var(--bad)" }}>{saved.error}</p> : null}

@@ -3,6 +3,7 @@ import type { Db } from "../live-auth";
 import { matchProperty } from "../connectors/rentmanager-live";
 import type { PacketRow } from "./rm-packet";
 
+export const SOURCES = ["Uploaded Rent Manager weekly packet", "Rent Manager snapshot, uploaded"] as const;
 export type Resolved = PacketRow & { propertyId: string | null };
 
 export async function resolveRows(db: Db, rows: PacketRow[]): Promise<Resolved[]> {
@@ -21,6 +22,7 @@ export async function savePacket(db: Db, user: SessionUser, fileName: string, ro
   for (const r of resolved) {
     const valid = typeof r.propertyName === "string" && /^\d{4}-\d\d-01$/.test(r.month) && /^\d{4}-\d\d-\d\d$/.test(r.asOf)
       && Number.isInteger(r.rentable) && r.rentable > 0 && Number.isInteger(r.occupied) && r.occupied >= 0 && r.occupied <= r.rentable
+      && (r.source === undefined || (SOURCES as readonly string[]).includes(r.source))
       && okOrNull(r.chargesDue) && okOrNull(r.paid) && okOrNull(r.delinquent) && okOrNull(r.moveIns) && okOrNull(r.moveOuts);
     if (!valid || !r.propertyId) { skipped.push(r.propertyName); continue; }
     if (!can(user, "upload_data", { type: "property", id: r.propertyId, propertyId: r.propertyId, department: "operations" })) { skipped.push(r.propertyName); continue; }
@@ -30,7 +32,7 @@ export async function savePacket(db: Db, user: SessionUser, fileName: string, ro
        on conflict (property_id, month) do update set occupied_sites = excluded.occupied_sites, rentable_sites = excluded.rentable_sites,
          charges_due = excluded.charges_due, payments_allocated = excluded.payments_allocated, delinquent_balance = excluded.delinquent_balance,
          move_ins = excluded.move_ins, move_outs = excluded.move_outs, source = excluded.source, as_of = excluded.as_of`,
-      [r.propertyId, r.month, r.occupied, r.rentable, r.chargesDue, r.paid, r.delinquent, r.moveIns, r.moveOuts, "Uploaded Rent Manager weekly packet", `${r.asOf}T12:00:00Z`]);
+      [r.propertyId, r.month, r.occupied, r.rentable, r.chargesDue, r.paid, r.delinquent, r.moveIns, r.moveOuts, r.source ?? SOURCES[0], `${r.asOf}T12:00:00Z`]);
     saved.push(r.propertyName);
   }
   await db.query("insert into public.audit_events (actor, action, target, ok) values ($1, 'upload.rm_packet', $2, $3)",
