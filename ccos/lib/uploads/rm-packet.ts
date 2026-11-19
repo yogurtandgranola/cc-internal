@@ -12,6 +12,7 @@ export type PacketRow = {
   moveIns: number | null;
   moveOuts: number | null;
   warnings: string[];
+  source?: string; // which kind of upload this row came from
 };
 
 const num = (s: string) => Number(s.replace(/,/g, ""));
