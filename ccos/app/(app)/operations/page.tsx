@@ -9,6 +9,7 @@ import { liveProperties } from "@/lib/dal/live-ops";
 import { rentManagerConfigured } from "@/lib/connectors/rentmanager-live";
 import { can } from "@/lib/authz";
 import { RefreshButton } from "./refresh";
+import { collectionsTone, occupancyTone, owedTone, THRESHOLDS } from "@/lib/live-status";
 
 export default async function OperationsPage() {
   const user = await requireDepartment("operations");
@@ -29,15 +30,19 @@ export default async function OperationsPage() {
                 <tr key={r.id}>
                   <td>{r.name}{r.city ? <div className="muted text-xs">{r.city}, {r.state}</div> : null}</td>
                   <td>{r.occupied ?? "Unavailable"}</td><td>{r.rentable ?? "Unavailable"}</td>
-                  <td>{r.occupied != null && r.rentable ? `${((r.occupied / r.rentable) * 100).toFixed(1)}%` : "Unavailable"}</td>
-                  <td>{r.charged && r.paid != null ? `${((r.paid / r.charged) * 100).toFixed(1)}%` : "Unavailable"}</td>
-                  <td>{r.owed != null ? r.owed.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }) : "Unavailable"}</td>
+                  <td>{(() => { const p = r.occupied != null && r.rentable ? (r.occupied / r.rentable) * 100 : null; return p == null ? "Unavailable" : <Badge tone={occupancyTone(p)}>{p.toFixed(1)}%</Badge>; })()}</td>
+                  <td>{(() => { const p = r.charged && r.paid != null ? (r.paid / r.charged) * 100 : null; return p == null ? "Unavailable" : <Badge tone={collectionsTone(p)}>{p.toFixed(1)}%</Badge>; })()}</td>
+                  <td>{r.owed == null ? "Unavailable" : <Badge tone={owedTone(r.owed, r.charged, r.occupied)}>{r.owed.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}</Badge>}</td>
                   <td>{r.asOf ? `${dateText(r.asOf)} (${r.source})` : "No data yet"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <p className="mt-3 flex flex-wrap items-center gap-2 text-xs" aria-label="Color key">
+          <Badge tone="good">Healthy</Badge><Badge tone="warn">Watch</Badge><Badge tone="bad">Action needed</Badge>
+          <span className="muted">Occupancy: {THRESHOLDS.occupancyGood}%+ healthy, under {THRESHOLDS.occupancyWarn}% action. Collected: {THRESHOLDS.collectionsPass}%+ healthy, under {THRESHOLDS.collectionsRed}% action. Owed: {THRESHOLDS.owedPctOfChargesWarn}% of charges watch, {THRESHOLDS.owedPctOfChargesBad}% action (per site when charges are unknown). Thresholds are proposed.</span>
+        </p>
         <p className="muted mt-2 text-xs">Occupied means a current tenant in Rent Manager. Amounts owed come from Rent Manager when connected, otherwise from uploads. Collections come only from uploaded packets for now. Budget and renewals are not live yet and are never estimated.</p>
       </>
     );

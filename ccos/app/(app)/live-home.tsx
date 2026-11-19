@@ -5,6 +5,7 @@ import { defaultDb } from "@/lib/live-auth";
 import { liveProperties } from "@/lib/dal/live-ops";
 import { rentManagerConfigured } from "@/lib/connectors/rentmanager-live";
 import { Badge, Empty, PageHeader } from "@/components/ui";
+import { collectionsTone, occupancyTone, owedTone, toneColor, toneWord, THRESHOLDS } from "@/lib/live-status";
 
 const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -21,6 +22,9 @@ export async function LiveHome({ user }: { user: SessionUser }) {
   const owedRows = rows.filter((r) => r.owed != null);
   const owed = owedRows.reduce((a, r) => a + (r.owed ?? 0), 0);
   const latest = rows.map((r) => r.asOf).filter((x): x is string => Boolean(x)).sort().at(-1);
+  const occPct = sites ? (occ / sites) * 100 : null;
+  const colPct = charged ? (paid / charged) * 100 : null;
+  const tOcc = occupancyTone(occPct), tCol = collectionsTone(colPct), tOwed = owedTone(owedRows.length ? owed : null, charged || null, occ || null);
   const rm = rentManagerConfigured();
   const sources: { name: string; state: string; tone: "good" | "warn" | "muted"; note: string }[] = [
     { name: "Rent Manager (live)", state: rm ? "Connected" : "Not connected", tone: rm ? "good" : "warn", note: rm ? "Occupancy refreshes daily." : "Waiting for the Rent Manager login to be added in Vercel." },
@@ -35,19 +39,19 @@ export async function LiveHome({ user }: { user: SessionUser }) {
         <Empty title="No properties are shared with you yet">Ask the owner to give your account access to the properties you work on.</Empty>
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="card p-4"><div className="muted text-xs">Occupancy</div><div className="mt-1 text-2xl font-semibold">{sites ? `${((occ / sites) * 100).toFixed(1)}%` : "Unavailable"}</div><div className="muted text-xs">{sites ? `${occ} of ${sites} sites, ${withData.length} of ${rows.length} properties with data` : "No data yet"}</div></div>
-          <div className="card p-4"><div className="muted text-xs">Collected so far this month</div><div className="mt-1 text-2xl font-semibold">{charged ? `${((paid / charged) * 100).toFixed(1)}%` : "Unavailable"}</div><div className="muted text-xs">{charged ? `${usd(paid)} of ${usd(charged)}, ${money.length} properties` : "From uploaded packets only"}</div></div>
-          <div className="card p-4"><div className="muted text-xs">Owed by residents</div><div className="mt-1 text-2xl font-semibold">{owedRows.length ? usd(owed) : "Unavailable"}</div><div className="muted text-xs">{owedRows.length ? `${owedRows.length} properties` : "From uploaded packets only"}</div></div>
+          <div className="card p-4" style={{ borderTop: `4px solid ${toneColor(tOcc) === "inherit" ? "var(--line)" : toneColor(tOcc)}` }}><div className="muted text-xs">Occupancy · {toneWord[tOcc]}</div><div className="mt-1 text-2xl font-semibold" style={{ color: toneColor(tOcc) }}>{sites ? `${((occ / sites) * 100).toFixed(1)}%` : "Unavailable"}</div><div className="muted text-xs">{sites ? `${occ} of ${sites} sites, ${withData.length} of ${rows.length} properties with data` : "No data yet"}</div></div>
+          <div className="card p-4" style={{ borderTop: `4px solid ${toneColor(tCol) === "inherit" ? "var(--line)" : toneColor(tCol)}` }}><div className="muted text-xs">Collected so far this month · {toneWord[tCol]}</div><div className="mt-1 text-2xl font-semibold" style={{ color: toneColor(tCol) }}>{charged ? `${((paid / charged) * 100).toFixed(1)}%` : "Unavailable"}</div><div className="muted text-xs">{charged ? `${usd(paid)} of ${usd(charged)}, ${money.length} properties` : "From uploaded packets only"}</div></div>
+          <div className="card p-4" style={{ borderTop: `4px solid ${toneColor(tOwed) === "inherit" ? "var(--line)" : toneColor(tOwed)}` }}><div className="muted text-xs">Owed by residents · {toneWord[tOwed]}</div><div className="mt-1 text-2xl font-semibold" style={{ color: toneColor(tOwed) }}>{owedRows.length ? usd(owed) : "Unavailable"}</div><div className="muted text-xs">{owedRows.length ? `${owedRows.length} properties` : "From uploaded packets only"}</div></div>
         </div>
       )}
       {rows.length > 0 ? (
         <section className="mt-6" aria-labelledby="props"><h2 id="props" className="mb-2 text-lg font-semibold">Properties</h2>
           <div className="card overflow-x-auto"><table className="t"><thead><tr><th>Property</th><th>Occupancy</th><th>As of</th></tr></thead><tbody>
             {rows.map((r) => (
-              <tr key={r.id}><td>{r.name}</td><td>{r.occupied != null && r.rentable ? `${((r.occupied / r.rentable) * 100).toFixed(1)}% (${r.occupied}/${r.rentable})` : "Unavailable"}</td><td>{r.asOf ? day(r.asOf) : "No data yet"}</td></tr>
+              <tr key={r.id}><td>{r.name}</td><td>{r.occupied != null && r.rentable ? <Badge tone={occupancyTone((r.occupied / r.rentable) * 100)}>{`${((r.occupied / r.rentable) * 100).toFixed(1)}% (${r.occupied}/${r.rentable})`}</Badge> : "Unavailable"}</td><td>{r.asOf ? day(r.asOf) : "No data yet"}</td></tr>
             ))}
           </tbody></table></div>
-          <p className="muted mt-2 text-xs"><Link href="/operations">Open Operations</Link> for the full table.</p>
+          <p className="muted mt-2 text-xs"><Link href="/operations">Open Operations</Link> for the full table. Colors: green is healthy (occupancy {THRESHOLDS.occupancyGood}%+), amber is watch, red needs action (under {THRESHOLDS.occupancyWarn}%). Thresholds are proposed.</p>
         </section>
       ) : null}
       <section className="mt-6" aria-labelledby="src"><h2 id="src" className="mb-2 text-lg font-semibold">Data sources</h2>
